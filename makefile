@@ -10,7 +10,7 @@ TARGET = reconnaissance_chiffres
 
 .PHONY: clean deepclean
 
-$(TARGET): $(TARGET).o graphiclib.a fonctions.o
+$(TARGET): $(TARGET).o graphiclib.a fonctions.o fonctionsTraitementImage.o
 	$(CC) -o $@.exe $^ $(LDFLAGS)
 
 $(TARGET).o: $(TARGET).c definitions.h
@@ -18,6 +18,9 @@ $(TARGET).o: $(TARGET).c definitions.h
 
 fonctions.o: fonctions.c definitions.h fonctions.h
 	gcc -Wall $(CFLAGS) -c fonctions.c
+
+fonctionsTraitementImage.o: fonctionsTraitementImage.c definitions.h BmpLib.h fonctionsTraitementImage.h
+	gcc -Wall $(CFLAGS) -c fonctionsTraitementImage.c
 
 graphiclib.a: BmpLib.o ErreurLib.o ESLib.o GfxLib.o  OutilsLib.o
 	ar r graphiclib.a BmpLib.o ErreurLib.o ESLib.o GfxLib.o OutilsLib.o

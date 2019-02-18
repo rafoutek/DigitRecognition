@@ -855,6 +855,3 @@ void recreeCercle(int ***matNew , int ***matRadon,int h,int l ){
 	printf("Matrice des cercles créée\n");
 }
 
-//----------------------------------------------
-
-

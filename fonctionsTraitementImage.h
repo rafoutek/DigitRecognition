@@ -64,10 +64,3 @@ void creeRadon (int **mat, int ****matRadon, int h, int l);
 void initMatInv(int **mat, int h, int l);
 void recreeDroite(int ***matNew , int **matHough,int h,int l );
 void recreeCercle(int ***matNew , int ***matRadon,int h,int l );
-
-/*
-POINT recherchePointMax(int **mat, int h, int l);
-POINT3D recherchePointMax3D(int ***mat, int h, int l, int L);
-
-void chercheMaxs (POINT *liste, int **mat, int h, int l);
-*/
