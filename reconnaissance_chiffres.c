@@ -49,7 +49,7 @@ int main (void)
 				//initialise les biais de chaque perceptron à 0
 				init_biais_Reseau(&reseau);  
 				
-				short int erreurs_modeles;
+				int erreurs_modeles;
 				bool erreurs_reseau_negligeables;
 				
 				int nb_boucles = 0;
@@ -67,7 +67,7 @@ int main (void)
 						printf("\n\nMODELE %d\n",i);
 						nb_modeles_a_apprendre++;
 						affiche_modele(modeleComplet.modeles[i]);
-						propagation_avant_selon_modele(&reseau, modeleComplet.modeles[i]);
+						propagation_avant_selon_modele(&reseau, modeleComplet.modeles[i].sorties_attendues);
 						erreurs_reseau_negligeables = erreurs_reseau_insignifiantes(reseau);
 						if(erreurs_reseau_negligeables)
 						{
