@@ -218,6 +218,20 @@ void creeMatNG(DonneesImageRGB * image, int ** b, int ** v, int ** r, int ***s)
 	printf("Matrice niveaux de gris faite\n");
 }
 
+void creeMatNG_V2(int h, int l, int ** b, int ** v, int ** r, int ***s)
+{
+	printf("\nCréation matrice niveaux de gris en cours...\n");
+	*s=alloueMatriceInt(h,l);
+	for( int i=0 ; i<h ; i++)
+	{
+		for(int j=0; j<l; j++)
+		{	
+			(*s)[i][j] = (int) (0.2125*r[i][j] + 0.7154*v[i][j] + 0.0721*b[i][j]);
+			//printf("%d\n",(*s)[i][j]);
+		}
+	}
+	printf("Matrice niveaux de gris faite\n");
+}
 
 void initTab(float tab[256] , int taille)
 {
@@ -329,6 +343,26 @@ void seuillage(int h, int l, int ***s, int seuil)
 			}
 			else{
 				(*s)[i][j]=255;
+			}
+		}
+	}
+}
+
+void seuillage_V2(int h, int l, int seuil, int **g, int ***nb)
+{
+	printf("Seuillage de la matrice...\n");
+	*nb = alloueMatriceInt(h,l);
+	for( int i=0 ; i<h ; i++)
+	{
+		for(int j=0; j<l; j++)
+		{	
+			//si inferieur au seuil noir, sinon blanc
+			if(g[i][j] < seuil)
+			{
+				(*nb)[i][j]=0;
+			}
+			else{
+				(*nb)[i][j]=255;
 			}
 		}
 	}

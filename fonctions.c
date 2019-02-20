@@ -6,12 +6,162 @@
 #include <math.h>
 #include <string.h>
 
+#include "BmpLib.h"
 #include "definitions.h"
 #include "fonctions.h"
+#include "fonctionsTraitementImage.h"
 
 #define ACTIVATION_BIAIS 1
 #define LEARNING_SPEED 1
 
+//fonction de creation du modele complet
+MODELE_COMPLET init_modeleComplet(int nb_modeles, int nb_entrees, int nb_sorties)
+{	
+	MODELE_COMPLET modeleComplet;
+	modeleComplet.nb_modeles = nb_modeles;
+	modeleComplet.modeles = (MODELE *)malloc(sizeof(MODELE) * modeleComplet.nb_modeles);  
+
+	//allocation tableau d'entrees de chaque modele
+	modeleComplet.nb_entrees = nb_entrees;
+	for(int i = 0; i < modeleComplet.nb_modeles ; i++)
+	{
+		modeleComplet.modeles[i].nb_entrees = modeleComplet.nb_entrees;
+		modeleComplet.modeles[i].entrees = (ENTREE *)malloc(sizeof(ENTREE) * modeleComplet.nb_entrees);
+	}
+	//allocation tableau des sorties attendues de chaque modele
+	modeleComplet.nb_sorties = nb_sorties;
+	for(int i = 0; i < modeleComplet.nb_modeles ; i++)
+	{
+		modeleComplet.modeles[i].nb_sorties = modeleComplet.nb_sorties;
+		modeleComplet.modeles[i].sorties_attendues = (double *)malloc(sizeof(double) * modeleComplet.nb_sorties);
+	}	
+	return modeleComplet;
+}
+
+void remplit_modeleComplet_XOR(MODELE_COMPLET *modeleComplet)
+{
+	//remplissage modeles selon table de verite du XOR
+	modeleComplet->modeles[0].entrees[0].x = 0;
+	modeleComplet->modeles[0].entrees[1].x = 0;
+	modeleComplet->modeles[0].sorties_attendues[0] = 0;
+	
+	modeleComplet->modeles[1].entrees[0].x = 0;
+	modeleComplet->modeles[1].entrees[1].x = 1;
+	modeleComplet->modeles[1].sorties_attendues[0] = 1;
+	
+	modeleComplet->modeles[2].entrees[0].x = 1;
+	modeleComplet->modeles[2].entrees[1].x = 0;
+	modeleComplet->modeles[2].sorties_attendues[0] = 1;
+	
+	modeleComplet->modeles[3].entrees[0].x = 1;
+	modeleComplet->modeles[3].entrees[1].x = 1;
+	modeleComplet->modeles[3].sorties_attendues[0] = 0;		
+
+	//~ affiche_modele_complet(modeleComplet);
+}
+
+DonneesImageRGB* lit_imageModele(int chiffre, int num)
+{
+	DonneesImageRGB *img = NULL;
+	char chemin_image[50];
+	
+	sprintf(chemin_image, "./img_learn_bmp/%d.%d.bmp", chiffre,num);
+	img = lisBMPRGB(chemin_image);
+	if(img == NULL)
+	{
+		perror("erreur lecture image");
+		exit(1);
+	}
+	return img;
+}
+
+void determine_sortieModeleAttendue(int chiffre, MODELE modele)
+{
+	//resets the array values to 0
+	memset(modele.sorties_attendues, 0, modele.nb_sorties*sizeof(double));
+
+	//digit 0 is defined by all the outputs at 0
+	//digit 1 is defined by sortie_attendue[0]=1 
+	//etc..
+	if(chiffre>0)
+		modele.sorties_attendues[chiffre-1] = 1;
+}
+
+void remplit_modeleComplet_image(DonneesImageRGB *image, MODELE_COMPLET *modeleComplet)
+{
+	int **r , **v, **b; //matrices couleur
+	int **g; //matrice gris
+	//int **nb; //matrice noir et blanc
+	int k=0;
+	cree3MatricesInt(image,&b,&v,&r);
+	creeMatNG_V2(28,28,b,v,r,&g);
+	//seuillage_V2(28,28,100,g,&nb);
+	seuillage(28,28,&g,100);
+
+	for(int i = 0; i < 28; i++)
+	{
+		for(int j = 0; j < 28; j++)
+		{
+			modeleComplet->modeles->entrees[k].x = g[i][j];
+			k++;
+		}
+	}	
+}
+
+void test_image_to_model(MODELE_COMPLET *modeleComplet)
+{
+	DonneesImageRGB *img = lit_imageModele(0,0);
+	remplit_modeleComplet_image(img, modeleComplet);
+	affiche_modele(modeleComplet->modeles[0]);
+}
+
+//creates a structured network of perceptrons thanks to the global model of data (number of inputs), 
+//change the network caracteristics/values in the function as you want
+RESEAU init_reseau(MODELE_COMPLET modeleComplet)
+{
+	RESEAU reseau;
+	reseau.nb_couches = 2;
+	reseau.couches = (COUCHE *)malloc(sizeof(COUCHE) * reseau.nb_couches);
+	
+	//initialisation du reseau
+		//couche cachee
+	reseau.couches[0].numero_couche = 0;
+	reseau.couches[0].nb_perceptrons = 2;
+		//couche sortie avec 9 perceptrons/sorties
+	reseau.couches[1].numero_couche = 1;
+	reseau.couches[1].nb_perceptrons = 9; 
+	
+	for(int i = 0 ; i< reseau.nb_couches ; i++)
+	{
+		reseau.couches[i].perceptrons = (PERCEPTRON *)malloc(sizeof(PERCEPTRON) * reseau.couches[i].nb_perceptrons);
+		
+		for(int j = 0; j< reseau.couches[i].nb_perceptrons; j++)
+		{
+			//ici chaque perceptron de chaque couche a <nb_entrees> entrees
+			reseau.couches[i].perceptrons[j].nb_entrees = modeleComplet.nb_entrees;
+			reseau.couches[i].perceptrons[j].entrees = (ENTREE *)malloc(sizeof(ENTREE) * modeleComplet.nb_entrees);
+		} 
+		
+		//liens entre entrees perceptrons de la couche et entrees suivantes de la couche precedente
+		if(i > 0) 
+		{
+			for (int k = 0; k < reseau.couches[i-1].nb_perceptrons; k++)
+			{
+				reseau.couches[i-1].perceptrons[k].nb_entrees_suivantes_liees = reseau.couches[i].nb_perceptrons;
+				reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees = (ENTREE **)malloc(sizeof(ENTREE *) * reseau.couches[i].nb_perceptrons);
+				
+				for(int l = 0; l < reseau.couches[i].nb_perceptrons; l++)
+				{
+					//pointeur entree suivante 0 du perceptron 0 de la couche precedente  = adresse entree 0 perceptron 0 de la couche actuelle
+					//pointeur entree suivante 0 du perceptron 1 de la couche precedente  = adresse entree 1 perceptron 0 de la couche actuelle
+					reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees[l] = &(reseau.couches[i].perceptrons[l].entrees[k]) ;
+					//printf("entree a partir du perceptron precedent = %f\n",reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees[l]->x);
+				}
+			}
+		}
+	}
+	return reseau;
+}
 
 //initialisation des poids entre -0.5 et 0.5
 void init_poids_alea_modeleComplet(MODELE_COMPLET *modeleComplet)
@@ -74,7 +224,10 @@ void affiche_modele (MODELE modele)
 	{
 		printf(" entree = %f\n",modele.entrees[i].x);
 	}
-	printf(" sortie attendue = %f\n",modele.sortie_attendue);
+	for(int i = 0; i < modele.nb_sorties; i++)
+	{
+		printf(" sortie attendue = %f\n",modele.sorties_attendues[i]);
+	}
 }
 
 void affiche_modele_complet(MODELE_COMPLET modeleComplet)
@@ -193,7 +346,7 @@ void propagation_avant_selon_modele (RESEAU *reseau, MODELE modele)
 			}
 			else //on a atteint la derniere couche donc on calcule l'erreur globale
 			{
-				(*reseau).couches[i].perceptrons[j].erreur_globale = erreur_globale_couche_finale((*reseau).couches[i].perceptrons[j] , modele.sortie_attendue) ;
+				(*reseau).couches[i].perceptrons[j].erreur_globale = erreur_globale_couche_finale((*reseau).couches[i].perceptrons[j] , modele.sorties_attendues[j]) ;
 			}
 		}
 		//passe au perceptron suivant de la meme couche

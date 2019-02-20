@@ -12,12 +12,14 @@ typedef struct MODELE MODELE;
 struct MODELE{
 	int nb_entrees;
 	ENTREE *entrees;
-	double sortie_attendue;
+	int nb_sorties;
+	double *sorties_attendues;
 };
 
 typedef struct MODELE_COMPLET MODELE_COMPLET;
 struct MODELE_COMPLET{
 	int nb_entrees;
+	int nb_sorties;
 	int nb_modeles;
 	MODELE *modeles;
 };

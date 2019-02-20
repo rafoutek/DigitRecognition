@@ -6,89 +6,21 @@
 #include <math.h>
 #include <string.h>
 
+#include "BmpLib.h"
 #include "definitions.h"
 #include "fonctions.h"
+#include "fonctionsTraitementImage.h"
 
 int main (void)
 {
-	
-	//RESEAU A 2 ENTREES ET 1 SORTIE	
-	
-	MODELE_COMPLET modeleComplet;
-	modeleComplet.nb_modeles = 4; //on a 4 modeles pour determiner le XOR
-	modeleComplet.modeles = (MODELE *)malloc(sizeof(MODELE) * modeleComplet.nb_modeles); 
-	
-	//allocation tableau d'entrees de chaque modele
-	modeleComplet.nb_entrees = 2;
-	for(int i = 0; i < modeleComplet.nb_modeles ; i++)
-	{
-		modeleComplet.modeles[i].nb_entrees = modeleComplet.nb_entrees;
-		modeleComplet.modeles[i].entrees = (ENTREE *)malloc(sizeof(ENTREE) * modeleComplet.nb_entrees);
-	}
-	
-	//remplissage modeles selon table de verite du XOR
-	modeleComplet.modeles[0].entrees[0].x = 0;
-	modeleComplet.modeles[0].entrees[1].x = 0;
-	modeleComplet.modeles[0].sortie_attendue = 0;
-	
-	modeleComplet.modeles[1].entrees[0].x = 0;
-	modeleComplet.modeles[1].entrees[1].x = 1;
-	modeleComplet.modeles[1].sortie_attendue = 1;
-	
-	modeleComplet.modeles[2].entrees[0].x = 1;
-	modeleComplet.modeles[2].entrees[1].x = 0;
-	modeleComplet.modeles[2].sortie_attendue = 1;
-	
-	modeleComplet.modeles[3].entrees[0].x = 1;
-	modeleComplet.modeles[3].entrees[1].x = 1;
-	modeleComplet.modeles[3].sortie_attendue = 0;		
+	int h=28,l=28; //images 28x28
+	int nb_entrees = h*l;
+	int nb_sorties = 9;
+	DonneesImageRGB *img;
+	MODELE_COMPLET modeleComplet = init_modeleComplet(1,nb_entrees,nb_sorties);
+	RESEAU reseau = init_reseau(modeleComplet);
 
-	
-	//~ affiche_modele_complet(modeleComplet);
-	
-	RESEAU reseau;
-	reseau.nb_couches = 2;
-	reseau.couches = (COUCHE *)malloc(sizeof(COUCHE) * reseau.nb_couches);
-	
-	//initialisation du reseau
-	reseau.couches[0].numero_couche = 0;
-	reseau.couches[0].nb_perceptrons = 2;
-	
-	reseau.couches[1].numero_couche = 1;
-	reseau.couches[1].nb_perceptrons = 1;
-	
-	for(int i = 0 ; i< reseau.nb_couches ; i++)
-	{
-		reseau.couches[i].perceptrons = (PERCEPTRON *)malloc(sizeof(PERCEPTRON) * reseau.couches[i].nb_perceptrons);
-		
-		for(int j = 0; j< reseau.couches[i].nb_perceptrons; j++)
-		{
-			//ici chaque perceptron de chaque couche a 2 entrees
-			reseau.couches[i].perceptrons[j].nb_entrees = modeleComplet.nb_entrees;
-			reseau.couches[i].perceptrons[j].entrees = (ENTREE *)malloc(sizeof(ENTREE) * modeleComplet.nb_entrees);
-		} 
-		
-		//liens entre entrees perceptrons de la couche et entrees suivantes de la couche precedente
-		if(i > 0) 
-		{
-			for (int k = 0; k < reseau.couches[i-1].nb_perceptrons; k++)
-			{
-				reseau.couches[i-1].perceptrons[k].nb_entrees_suivantes_liees = reseau.couches[i].nb_perceptrons;
-				reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees = (ENTREE **)malloc(sizeof(ENTREE *) * reseau.couches[i].nb_perceptrons);
-				
-				for(int l = 0; l < reseau.couches[i].nb_perceptrons; l++)
-				{
-					//pointeur entree suivante 0 du perceptron 0 de la couche precedente  = adresse entree 0 perceptron 0 de la couche actuelle
-					//pointeur entree suivante 0 du perceptron 1 de la couche precedente  = adresse entree 1 perceptron 0 de la couche actuelle
-					reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees[l] = &(reseau.couches[i].perceptrons[l].entrees[k]) ;
-					//printf("entree a partir du perceptron precedent = %f\n",reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees[l]->x);
-				}
-			}
-		}
-	}
-	
-	
-	
+
 	int choix_menu = 0;
 	while(choix_menu != 3)
 	{
@@ -99,6 +31,13 @@ int main (void)
 			case 1: //apprentissage a partir des modeles
 				printf("APPRENTISSAGE A PARTIR DES MODELES\n");
 				
+				img = lit_imageModele(0,0);
+				remplit_modeleComplet_image(img, &modeleComplet);
+				determine_sortieModeleAttendue(0,modeleComplet.modeles[0]);
+				affiche_modele(modeleComplet.modeles[0]);
+				
+				return 0;
+
 				//initialisation des poids aleatoires des perceptrons
 				srand(time(NULL));
 				init_poids_alea_Reseau(&reseau);
@@ -118,7 +57,7 @@ int main (void)
 					nb_modeles_a_apprendre  = 0;
 					
 					//on peut selectionner les modeles a prendre en compte pour l'apprentissage ici
-					for( int i = 0; i < modeleComplet.nb_modeles-1; i++)
+					for( int i = 0; i < modeleComplet.nb_modeles; i++)
 					{
 						printf("\n\nMODELE %d\n",i);
 						nb_modeles_a_apprendre++;

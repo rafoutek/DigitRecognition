@@ -1,3 +1,14 @@
+MODELE_COMPLET init_modeleComplet(int nb_modeles, int nb_entrees, int nb_sorties);
+void remplit_modeleComplet_XOR(MODELE_COMPLET *modeleComplet);
+
+DonneesImageRGB* lit_imageModele(int chiffre, int num);
+void determine_sortieModeleAttendue(int chiffre, MODELE modele);
+void remplit_modeleComplet_image(DonneesImageRGB *image, MODELE_COMPLET *modeleComplet);
+void test_image_to_model(MODELE_COMPLET *modeleComplet);
+
+RESEAU init_reseau(MODELE_COMPLET modeleComplet);
+
+
 void init_poids_alea_modeleComplet(MODELE_COMPLET *modeleComplet);
 void init_poids_alea_Reseau(RESEAU *reseau);
 void init_biais_Reseau(RESEAU *reseau);

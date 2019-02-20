@@ -22,6 +22,7 @@ void cree3MatricesInt(DonneesImageRGB * image, int *** bleu, int *** vert, int *
 DonneesImageRGB *creeImage(int h, int l, int **r, int **v, int **b);
 
 void creeMatNG(DonneesImageRGB * image, int ** b, int ** v, int ** r, int ***s);
+void creeMatNG_V2(int h, int l, int ** b, int ** v, int ** r, int ***s);
 
 void initTab(float tab[256] , int taille);
 
@@ -34,6 +35,7 @@ void creeMatHistogramme (float histogramme[256], int ***hist);
 float compare_histogramme (float histogramme1[256], float histogramme2[256]);
 
 void seuillage(int h, int l, int ***s, int seuil);
+void seuillage_V2(int h, int l, int seuil, int **g, int ***nb);
 float compute_zero_order_cumulative_moment(float *hist, int k);
 float compute_first_order_cumulative_moment(float *hist, int k);
 float compute_variance_class_separability(float uT,float wk, float uk);
@@ -64,3 +66,4 @@ void creeRadon (int **mat, int ****matRadon, int h, int l);
 void initMatInv(int **mat, int h, int l);
 void recreeDroite(int ***matNew , int **matHough,int h,int l );
 void recreeCercle(int ***matNew , int ***matRadon,int h,int l );
+

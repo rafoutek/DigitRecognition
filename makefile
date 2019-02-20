@@ -1,7 +1,7 @@
 # Read the comments for compiling with macOS
 
-CC = gcc
-CFLAGS = -Wall -O3 -c
+CC = gcc 
+CFLAGS = -Wall -O3 -g -c
 LDFLAGS = graphiclib.a  -lm -lglut -lGL -lX11
 # For macOS, comment the preceding command line (put a # at the beginning)
 # and uncomment the following command line:
@@ -10,17 +10,20 @@ TARGET = reconnaissance_chiffres
 
 .PHONY: clean deepclean
 
-$(TARGET): $(TARGET).o graphiclib.a fonctions.o fonctionsTraitementImage.o
+$(TARGET): $(TARGET).o graphiclib.a fonctions.o fonctionsTraitementImage.o 
 	$(CC) -o $@.exe $^ $(LDFLAGS)
 
-$(TARGET).o: $(TARGET).c definitions.h
+$(TARGET).o: $(TARGET).c BmpLib.h definitions.h fonctions.h fonctionsTraitementImage.h
 	$(CC) $(CFLAGS) $<
 
-fonctions.o: fonctions.c definitions.h fonctions.h
-	gcc -Wall $(CFLAGS) -c fonctions.c
+fonctions.o: fonctions.c definitions.h fonctions.h BmpLib.h fonctionsTraitementImage.h
+	gcc -Wall $(CFLAGS) fonctions.c
 
 fonctionsTraitementImage.o: fonctionsTraitementImage.c definitions.h BmpLib.h fonctionsTraitementImage.h
-	gcc -Wall $(CFLAGS) -c fonctionsTraitementImage.c
+	gcc -Wall $(CFLAGS) fonctionsTraitementImage.c
+
+
+#lib isen ------------------------------------------
 
 graphiclib.a: BmpLib.o ErreurLib.o ESLib.o GfxLib.o  OutilsLib.o
 	ar r graphiclib.a BmpLib.o ErreurLib.o ESLib.o GfxLib.o OutilsLib.o
@@ -43,7 +46,7 @@ GfxLib.o: GfxLib.c GfxLib.h ESLib.h
 
 OutilsLib.o: OutilsLib.c OutilsLib.h
 	gcc -Wall -O2 -c OutilsLib.c
-
+# --------------------------------------------------
 
 zip:
 	tar -cvzf $(TARGET).tgz *.[ch] *.pdf makefile
