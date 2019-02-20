@@ -50,3 +50,8 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# specific files #
+fonctions_jpg.c
+fonctions_jpg.h
+img_learn.zip
