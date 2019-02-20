@@ -23,7 +23,7 @@ DonneesImageRGB *creeImage(int h, int l, int **r, int **v, int **b);
 
 void creeMatNG(DonneesImageRGB * image, int ** b, int ** v, int ** r, int ***s);
 void creeMatNG_V2(int h, int l, int ** b, int ** v, int ** r, int ***s);
-
+void remplaceValeurs_par_dansMatriceInt_deTaille_(int val1, int val2, int ***mat,int h,int l);
 void initTab(float tab[256] , int taille);
 
 void creeHistogramme (int h, int l, int **s, float histogramme [256]);

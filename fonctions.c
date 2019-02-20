@@ -97,6 +97,8 @@ void remplit_modeleComplet_image(DonneesImageRGB *image, MODELE_COMPLET *modeleC
 	creeMatNG_V2(28,28,b,v,r,&g);
 	//seuillage_V2(28,28,100,g,&nb);
 	seuillage(28,28,&g,100);
+	//on remplace les 0 par des 1 pour être plus précis dans les calculs
+	remplaceValeurs_par_dansMatriceInt_deTaille_(0,1,&g,28,28);
 
 	for(int i = 0; i < 28; i++)
 	{
@@ -134,7 +136,7 @@ void recopie_EntreesModele_dansEntreesReseau(MODELE modele, RESEAU *reseau)
 	{
 		for(int j = 0; j < reseau->couches[0].perceptrons[i].nb_entrees; j++)
 		{
-			reseau->couches[0].perceptrons[i].entrees = modele.entrees;
+			reseau->couches[0].perceptrons[i].entrees[j].x = modele.entrees[j].x;
 		}
 	}
 }
@@ -182,11 +184,7 @@ RESEAU init_reseau(MODELE_COMPLET modeleComplet)
 				
 				for(int l = 0; l < reseau.couches[i].nb_perceptrons; l++)
 				{
-					//pointeur entree suivante 0 du perceptron 0 de la couche precedente  = adresse entree 0 perceptron 0 de la couche actuelle
-					//pointeur entree suivante 0 du perceptron 1 de la couche precedente  = adresse entree 1 perceptron 0 de la couche actuelle
-					reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees[l] = &(reseau.couches[i].perceptrons[l].entrees[k]) ;
-					//printf("entree a partir du perceptron precedent = %f\n",reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees[l]->x);
-					
+					reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees[l] = reseau.couches[i].perceptrons[l].entrees ;
 				}
 			}
 		}
@@ -339,13 +337,8 @@ int fonction_transfert_seuil (double somme)
 void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues)
 {
 	int i,j;
-
 	double val_fonction_transfert;
-	
-/* 	//initialisation des entrees du reseau a partir du modele
-	reseau->couches[0].perceptrons[0].entrees[0].x = reseau->couches[0].perceptrons[1].entrees[0].x = modele.entrees[0].x ;
-	reseau->couches[0].perceptrons[0].entrees[1].x = reseau->couches[0].perceptrons[1].entrees[1].x = modele.entrees[1].x ;
-	 */
+
 	
 	printf("\nPROPAGATION AVANT\n");
 	for(i = 0; i < reseau->nb_couches; i++)
@@ -367,9 +360,12 @@ void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues)
 			//si couche suivant il y a
 			if( i+1 < reseau->nb_couches)
 			{
+				printf("Couche chachee %d:\n", i);
+				printf("Sortie perceptron %d = %f\n",j, reseau->couches[i].perceptrons[j].sortie);
 				for(int k = 0; k < reseau->couches[i].perceptrons[j].nb_entrees_suivantes_liees ; k++)
 				{
-					(*reseau->couches[i].perceptrons[j].entrees_suivantes_liees[k]).x = reseau->couches[i].perceptrons[j].sortie;
+					reseau->couches[i].perceptrons[j].entrees_suivantes_liees[k][j].x = reseau->couches[i].perceptrons[j].sortie;
+					printf("Passée au perceptron %d, entrée %d\n",k,j);
 				}
 			}
 			else //on a atteint la derniere couche donc on calcule l'erreur globale
@@ -415,7 +411,7 @@ void propagation_avant_selon_entrees (RESEAU *reseau, int entree0, int entree1)
 			//si couche suivant il y a
 			if( i+1 < reseau->nb_couches)
 			{
-/* 				//si la sortie vient du perceptron 0, cela correspond à l'entree 0
+				/*//si la sortie vient du perceptron 0, cela correspond à l'entree 0
 				if( j == 0 )
 				{
 					reseau->couches[i+1].perceptrons[0].entrees[0].x = reseau->couches[i].perceptrons[j].sortie;
@@ -426,7 +422,7 @@ void propagation_avant_selon_entrees (RESEAU *reseau, int entree0, int entree1)
 				 */
 				for(int k = 0; k < reseau->couches[i].perceptrons[j].nb_entrees_suivantes_liees ; k++)
 				{
-					(*reseau->couches[i].perceptrons[j].entrees_suivantes_liees[k]).x = reseau->couches[i].perceptrons[j].sortie;
+					reseau->couches[i].perceptrons[j].entrees_suivantes_liees[k][j].x = reseau->couches[i].perceptrons[j].sortie;
 				}
 				
 			
@@ -473,7 +469,7 @@ void enregistre_erreur_locale_dans_entreesPerceptron (PERCEPTRON *perceptron)
 	}
 }
 
-void calcul_et_enregistre_erreurLocalePerceptron (PERCEPTRON *perceptron)
+void calcul_et_enregistre_erreurLocalePerceptron (PERCEPTRON *perceptron, int num_perceptron)
 {
 	int i;
 	double mul = 0;
@@ -481,7 +477,7 @@ void calcul_et_enregistre_erreurLocalePerceptron (PERCEPTRON *perceptron)
 	
 	for (i=0; i< perceptron->nb_entrees_suivantes_liees; i++)
 	{
-		mul += perceptron->entrees_suivantes_liees[i]->poids * perceptron->entrees_suivantes_liees[i]->erreur_locale;
+		mul += perceptron->entrees_suivantes_liees[i][num_perceptron].poids * perceptron->entrees_suivantes_liees[i]->erreur_locale;
 		//printf("entree %d = %f avec poids = %f et erreur locale perceptron = %f\n",i, perceptron.entrees_suivantes_liees[i]->x,perceptron.entrees_suivantes_liees[i]->poids, perceptron.entrees_suivantes_liees[i]->erreur_locale);
 		//printf("tour %d mul = %f\n",i, mul);
 	}
@@ -515,7 +511,7 @@ void retropropagation (RESEAU *reseau)
 			}
 			else   //calcule l'erreur locale de chaque perceptron des couches cachees
 			{
-				calcul_et_enregistre_erreurLocalePerceptron(&((*reseau).couches[i].perceptrons[j]));
+				calcul_et_enregistre_erreurLocalePerceptron(&((*reseau).couches[i].perceptrons[j]),j);
 			}
 			
 			printf("  ancien biais = %f, ", (*reseau).couches[i].perceptrons[j].biais);
@@ -526,10 +522,12 @@ void retropropagation (RESEAU *reseau)
 			//modif des poids des entrees du perceptron
 			for (k = 0; k < (*reseau).couches[i].perceptrons[j].nb_entrees ; k++)
 			{
-				printf("  entree %d: \n\tancien poids  = %f\n",k, (*reseau).couches[i].perceptrons[j].entrees[k].poids);
+				printf("  entree %d = %f erreur locale = %f \n\tancien poids  = %f\n",k,(*reseau).couches[i].perceptrons[j].entrees[k].x, (*reseau).couches[i].perceptrons[j].erreur_locale , (*reseau).couches[i].perceptrons[j].entrees[k].poids);
 				(*reseau).couches[i].perceptrons[j].entrees[k].poids = (*reseau).couches[i].perceptrons[j].entrees[k].poids + LEARNING_SPEED * (*reseau).couches[i].perceptrons[j].erreur_locale * (*reseau).couches[i].perceptrons[j].entrees[k].x; // W* = W + n * erreur locale perceptron * entree correspondant a ce poids
 				printf("\tnouveau poids = %f\n", (*reseau).couches[i].perceptrons[j].entrees[k].poids);
 			}
+			if(i==0)
+				getchar();
 		}
 	}
 }

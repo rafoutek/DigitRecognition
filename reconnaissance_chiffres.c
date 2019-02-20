@@ -34,13 +34,13 @@ int main (void)
 				img = lit_imageModele(0,0);
 				remplit_modeleComplet_image(img, &modeleComplet);
 				determine_sortieModeleAttendue(0,modeleComplet.modeles[0]);
-				affiche_modele(modeleComplet.modeles[0]);
+				//affiche_modele(modeleComplet.modeles[0]);
 				printf("modele rempli !\n");
 				getchar();
 				
 				//recopie entree modeleComplet dans entrees du reseau
 				recopie_EntreesModele_dansEntreesReseau(modeleComplet.modeles[0], &reseau);
-				affiche_entrees_reseau(reseau);
+				//affiche_entrees_reseau(reseau);
 				printf("modele recopié dans entrees reseau !\n");
 				getchar();
 
@@ -67,9 +67,12 @@ int main (void)
 					{
 						printf("\n\nMODELE %d\n",i);
 						nb_modeles_a_apprendre++;
-						affiche_modele(modeleComplet.modeles[i]);
+						//affiche_modele(modeleComplet.modeles[i]);
+						affiche_entrees_reseau(reseau);
 						propagation_avant_selon_modele(&reseau, modeleComplet.modeles[i].sorties_attendues);
 						erreurs_reseau_negligeables = erreurs_reseau_insignifiantes(reseau);
+						getchar();
+
 						if(erreurs_reseau_negligeables)
 						{
 							printf("erreurs des sorties du reseau negligeables pour le modele %d\n", i);

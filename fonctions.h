@@ -31,6 +31,8 @@ int choix_modele(void);
 
 double erreur_globale_couche_finale( PERCEPTRON perceptron_final, double sortie_attendue);
 double erreur_locale_couche_finale( PERCEPTRON perceptron_final, double erreur_globale);
+void enregistre_erreur_locale_dans_entreesPerceptron (PERCEPTRON *perceptron);
+void calcul_et_enregistre_erreurLocalePerceptron (PERCEPTRON *perceptron, int num_perceptron);
 void retropropagation (RESEAU *reseau);
 
 

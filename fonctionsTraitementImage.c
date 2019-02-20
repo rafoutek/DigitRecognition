@@ -233,6 +233,21 @@ void creeMatNG_V2(int h, int l, int ** b, int ** v, int ** r, int ***s)
 	printf("Matrice niveaux de gris faite\n");
 }
 
+
+void remplaceValeurs_par_dansMatriceInt_deTaille_(int val1, int val2, int ***mat,int h,int l)
+{
+	printf("Remplacement des %d par des %d dans la matrice\n", val1,val2);
+	for( int i=0 ; i<h ; i++)
+	{
+		for(int j=0; j<l; j++)
+		{	
+			if((*mat)[i][j] == val1)
+				(*mat)[i][j] = val2;
+		}
+	}
+	printf("Remplacement fait.\n");
+}
+
 void initTab(float tab[256] , int taille)
 {
 	for (int i = 0; i < taille; i++)
