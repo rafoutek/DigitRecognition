@@ -290,9 +290,9 @@ void affiche_reseau(RESEAU reseau)
 			//printf("  sortie somme = %f\n",reseau.couches[i].perceptrons[j].sortie_somme);
 			//printf("   sortie sigmoide = %f\n",reseau.couches[i].perceptrons[j].sortie_sigmoide);
 			//printf("   sortie seuil = %f\n",reseau.couches[i].perceptrons[j].sortie_seuil);
-			printf("  sortie = %f\n",reseau.couches[i].perceptrons[j].sortie);
-			printf("  erreur globale = %f\n",reseau.couches[i].perceptrons[j].erreur_globale);
-			printf("  erreur locale = %f\n",reseau.couches[i].perceptrons[j].erreur_locale);
+			printf("  sortie = %e\n",reseau.couches[i].perceptrons[j].sortie);
+			printf("  erreur globale = %e\n",reseau.couches[i].perceptrons[j].erreur_globale);
+			printf("  erreur locale = %e\n",reseau.couches[i].perceptrons[j].erreur_locale);
 			printf("  nb entrees couche suivante liees = %d\n",reseau.couches[i].perceptrons[j].nb_entrees_suivantes_liees);			
 		}
 	}		
@@ -318,8 +318,8 @@ double fonction_transfert_sigmoide( double somme)
 {
 	double valeur_sigmoide;
 	
-	valeur_sigmoide = 1/(1 + exp(-somme));
-	//printf("somme = %f, val sigmoide = %f\n",somme, valeur_sigmoide);
+	valeur_sigmoide = 1./(1. + exp(-somme));
+	printf("\nsomme = %f, val sigmoide = %e\n",somme, valeur_sigmoide);
 	
 	return valeur_sigmoide;
 }
@@ -352,21 +352,21 @@ void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues)
 			val_fonction_transfert = fonction_transfert_sigmoide(reseau->couches[i].perceptrons[j].sortie_somme);				
 			reseau->couches[i].perceptrons[j].sortie_sigmoide = val_fonction_transfert;
 			
-			//enregistre la sortie de la fonction transfert du perceptron
-			reseau->couches[i].perceptrons[j].sortie = val_fonction_transfert;
+			//enregistre la sortie de la fonction transfert du perceptron, ici sigmoide
+			reseau->couches[i].perceptrons[j].sortie = reseau->couches[i].perceptrons[j].sortie_sigmoide;
 			//printf("sortie = %f\n", reseau->couches[i].perceptrons[j].sortie);
 			
-			//passe cette valeur à l'entree du perceptron de la couche suivante
+			//passe cette  valeur à l'entree du perceptron de la couche suivante
 			//si couche suivant il y a
 			if( i+1 < reseau->nb_couches)
 			{
-				printf("Couche chachee %d:\n", i);
-				printf("Sortie perceptron %d = %f\n",j, reseau->couches[i].perceptrons[j].sortie);
+				printf("Couche cachee %d:\n", i);
+				printf("Sortie perceptron %d = %e\n",j, reseau->couches[i].perceptrons[j].sortie);
 				for(int k = 0; k < reseau->couches[i].perceptrons[j].nb_entrees_suivantes_liees ; k++)
 				{
 					reseau->couches[i].perceptrons[j].entrees_suivantes_liees[k][j].x = reseau->couches[i].perceptrons[j].sortie;
-					printf("Passée au perceptron %d, entrée %d\n",k,j);
 				}
+				printf("Passée à l'entree %d des perceptrons de la couche suivante\n",j);
 			}
 			else //on a atteint la derniere couche donc on calcule l'erreur globale
 			{
@@ -445,7 +445,7 @@ double erreur_globale_couche_finale( PERCEPTRON perceptron_final, double sortie_
 	double e;
 	
 	e = sortie_attendue - perceptron_final.sortie ;
-	printf("sortie attendue = %.0f, sortie finale = %f :\n\terreur globale finale = %f\n", sortie_attendue, perceptron_final.sortie, e);
+	printf("sortie attendue = %.0f, sortie finale = %e :\n\terreur globale finale = %f\n", sortie_attendue, perceptron_final.sortie, e);
 		
 	return e;
 }
@@ -454,7 +454,7 @@ double erreur_locale_couche_finale( PERCEPTRON perceptron_final, double erreur_g
 	double gradient;
 	
 	gradient = erreur_globale * perceptron_final.sortie * (1 - perceptron_final.sortie) ;
-	printf("erreur globale finale = %f, sortie finale = %f :\n\terreur locale finale = %f\n", erreur_globale, perceptron_final.sortie, gradient);
+	printf("erreur globale finale = %f, sortie finale = %e :\n\terreur locale finale = %e\n", erreur_globale, perceptron_final.sortie, gradient);
 		
 	return gradient;
 }
@@ -473,7 +473,6 @@ void calcul_et_enregistre_erreurLocalePerceptron (PERCEPTRON *perceptron, int nu
 {
 	int i;
 	double mul = 0;
-	double erreur_locale;
 	
 	for (i=0; i< perceptron->nb_entrees_suivantes_liees; i++)
 	{
@@ -482,9 +481,8 @@ void calcul_et_enregistre_erreurLocalePerceptron (PERCEPTRON *perceptron, int nu
 		//printf("tour %d mul = %f\n",i, mul);
 	}
 	
-	erreur_locale = perceptron->sortie * (1 - perceptron->sortie ) * mul;
-	perceptron->erreur_locale = erreur_locale;
-	printf("erreur locale perceptron couche cachee = %f\n", perceptron->erreur_locale);
+	perceptron->erreur_locale = perceptron->sortie * (1 - perceptron->sortie ) * mul;
+	printf("erreur locale perceptron couche cachee = %e\n", perceptron->erreur_locale);
 }
 
 
@@ -514,20 +512,22 @@ void retropropagation (RESEAU *reseau)
 				calcul_et_enregistre_erreurLocalePerceptron(&((*reseau).couches[i].perceptrons[j]),j);
 			}
 			
-			printf("  ancien biais = %f, ", (*reseau).couches[i].perceptrons[j].biais);
+			printf("  ancien biais = %e, ", (*reseau).couches[i].perceptrons[j].biais);
 			if( ACTIVATION_BIAIS == 1)
 				(*reseau).couches[i].perceptrons[j].biais = (*reseau).couches[i].perceptrons[j].biais + LEARNING_SPEED * (*reseau).couches[i].perceptrons[j].erreur_locale;
-			printf("  nouveau biais = %f\n", (*reseau).couches[i].perceptrons[j].biais);
+			printf("  nouveau biais = %e\n", (*reseau).couches[i].perceptrons[j].biais);
 			
 			//modif des poids des entrees du perceptron
 			for (k = 0; k < (*reseau).couches[i].perceptrons[j].nb_entrees ; k++)
 			{
-				printf("  entree %d = %f erreur locale = %f \n\tancien poids  = %f\n",k,(*reseau).couches[i].perceptrons[j].entrees[k].x, (*reseau).couches[i].perceptrons[j].erreur_locale , (*reseau).couches[i].perceptrons[j].entrees[k].poids);
+				if(i>0)
+					printf("  entree %d = %e", k,(*reseau).couches[i].perceptrons[j].entrees[k].x);
+				else printf("  entree %d = %.0f", k,(*reseau).couches[i].perceptrons[j].entrees[k].x);
+
+				printf(" erreur locale = %e \n\tancien poids  = %e\n", (*reseau).couches[i].perceptrons[j].erreur_locale , (*reseau).couches[i].perceptrons[j].entrees[k].poids);
 				(*reseau).couches[i].perceptrons[j].entrees[k].poids = (*reseau).couches[i].perceptrons[j].entrees[k].poids + LEARNING_SPEED * (*reseau).couches[i].perceptrons[j].erreur_locale * (*reseau).couches[i].perceptrons[j].entrees[k].x; // W* = W + n * erreur locale perceptron * entree correspondant a ce poids
-				printf("\tnouveau poids = %f\n", (*reseau).couches[i].perceptrons[j].entrees[k].poids);
+				printf("\tnouveau poids = %e\n", (*reseau).couches[i].perceptrons[j].entrees[k].poids);
 			}
-			if(i==0)
-				getchar();
 		}
 	}
 }
@@ -548,10 +548,12 @@ bool erreurs_reseau_insignifiantes (RESEAU reseau)
 	{
 		erreur_negligeable = erreur_insignifiante(reseau.couches[reseau.nb_couches-1].perceptrons[i].erreur_globale);
 		if(erreur_negligeable)
-			printf("erreur insignifiante pour le perceptron-sortie %d\n", i);
-		else printf("erreur non negligeable pour le perceptron-sortie %d\n", i);		
-		if(!erreur_negligeable)
+			printf("\nerreur insignifiante pour le perceptron-sortie %d\n", i);
+		else 
+		{
+			printf("\nerreur non negligeable pour le perceptron-sortie %d\n", i);		
 			return false;
+		}
 	}
 	return true;
 }

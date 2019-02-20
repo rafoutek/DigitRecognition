@@ -68,10 +68,10 @@ int main (void)
 						printf("\n\nMODELE %d\n",i);
 						nb_modeles_a_apprendre++;
 						//affiche_modele(modeleComplet.modeles[i]);
-						affiche_entrees_reseau(reseau);
+						//affiche_entrees_reseau(reseau);
 						propagation_avant_selon_modele(&reseau, modeleComplet.modeles[i].sorties_attendues);
 						erreurs_reseau_negligeables = erreurs_reseau_insignifiantes(reseau);
-						getchar();
+						//getchar();
 
 						if(erreurs_reseau_negligeables)
 						{
