@@ -170,13 +170,12 @@ RESEAU init_reseau(MODELE_COMPLET modeleComplet)
 				reseau.couches[i].perceptrons[j].nb_entrees = reseau.couches[i-1].nb_perceptrons;
 			}
 			reseau.couches[i].perceptrons[j].entrees = (ENTREE *)malloc(sizeof(ENTREE) * reseau.couches[i].perceptrons[j].nb_entrees);
-			
 		} 
 		
 		//liens entre entrees perceptrons de la couche et entrees suivantes de la couche precedente
 		if(i > 0) 
 		{
-/* 			for (int k = 0; k < reseau.couches[i-1].nb_perceptrons; k++)
+			for (int k = 0; k < reseau.couches[i-1].nb_perceptrons; k++)
 			{
 				reseau.couches[i-1].perceptrons[k].nb_entrees_suivantes_liees = reseau.couches[i].nb_perceptrons;
 				reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees = (ENTREE **)malloc(sizeof(ENTREE *) * reseau.couches[i].nb_perceptrons);
@@ -189,10 +188,6 @@ RESEAU init_reseau(MODELE_COMPLET modeleComplet)
 					//printf("entree a partir du perceptron precedent = %f\n",reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees[l]->x);
 					
 				}
-			} */
-			for (int k = 0; k < reseau.couches[i-1].nb_perceptrons; k++)
-			{
-
 			}
 		}
 	}
@@ -372,18 +367,9 @@ void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues)
 			//si couche suivant il y a
 			if( i+1 < reseau->nb_couches)
 			{
-/* 				//si la sortie vient du perceptron 0, cela correspond à l'entree 0
-				if( j == 0 )
-				{
-					reseau->couches[i+1].perceptrons[0].entrees[0].x = reseau->couches[i].perceptrons[j].sortie;
-				}
-				//si vient du perceptron 1, correspond a entree 1 du perceptron de la prochaine couche
-				else if( j== 1 )
-					reseau->couches[i+1].perceptrons[0].entrees[1].x = reseau->couches[i].perceptrons[j].sortie;
-				 */
 				for(int k = 0; k < reseau->couches[i].perceptrons[j].nb_entrees_suivantes_liees ; k++)
 				{
-					reseau->couches[i].perceptrons[j].entrees_suivantes_liees[k][j].x = reseau->couches[i].perceptrons[j].sortie;
+					(*reseau->couches[i].perceptrons[j].entrees_suivantes_liees[k]).x = reseau->couches[i].perceptrons[j].sortie;
 				}
 			}
 			else //on a atteint la derniere couche donc on calcule l'erreur globale
@@ -440,7 +426,7 @@ void propagation_avant_selon_entrees (RESEAU *reseau, int entree0, int entree1)
 				 */
 				for(int k = 0; k < reseau->couches[i].perceptrons[j].nb_entrees_suivantes_liees ; k++)
 				{
-					reseau->couches[i].perceptrons[j].entrees_suivantes_liees[k][j].x = reseau->couches[i].perceptrons[j].sortie;
+					(*reseau->couches[i].perceptrons[j].entrees_suivantes_liees[k]).x = reseau->couches[i].perceptrons[j].sortie;
 				}
 				
 			

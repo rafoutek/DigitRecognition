@@ -41,6 +41,7 @@ int main (void)
 				//recopie entree modeleComplet dans entrees du reseau
 				recopie_EntreesModele_dansEntreesReseau(modeleComplet.modeles[0], &reseau);
 				affiche_entrees_reseau(reseau);
+				printf("modele recopié dans entrees reseau !\n");
 				getchar();
 
 				//initialisation des poids aleatoires des perceptrons
