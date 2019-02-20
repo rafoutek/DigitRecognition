@@ -122,7 +122,7 @@ void affiche_entrees_reseau(RESEAU reseau)
 	printf("Entrees du reseau:\n");
 	for(int i = 0; i < reseau.couches[0].perceptrons[0].nb_entrees; i++)
 	{
-		printf(" entree %d = %f\n",i,reseau.couches[0].perceptrons[0].entrees[i].x);
+		printf(" entree reseau %d = %f\n",i,reseau.couches[0].perceptrons[0].entrees[i].x);
 	}
 }
 
@@ -170,12 +170,13 @@ RESEAU init_reseau(MODELE_COMPLET modeleComplet)
 				reseau.couches[i].perceptrons[j].nb_entrees = reseau.couches[i-1].nb_perceptrons;
 			}
 			reseau.couches[i].perceptrons[j].entrees = (ENTREE *)malloc(sizeof(ENTREE) * reseau.couches[i].perceptrons[j].nb_entrees);
+			
 		} 
 		
 		//liens entre entrees perceptrons de la couche et entrees suivantes de la couche precedente
 		if(i > 0) 
 		{
-			for (int k = 0; k < reseau.couches[i-1].nb_perceptrons; k++)
+/* 			for (int k = 0; k < reseau.couches[i-1].nb_perceptrons; k++)
 			{
 				reseau.couches[i-1].perceptrons[k].nb_entrees_suivantes_liees = reseau.couches[i].nb_perceptrons;
 				reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees = (ENTREE **)malloc(sizeof(ENTREE *) * reseau.couches[i].nb_perceptrons);
@@ -186,7 +187,12 @@ RESEAU init_reseau(MODELE_COMPLET modeleComplet)
 					//pointeur entree suivante 0 du perceptron 1 de la couche precedente  = adresse entree 1 perceptron 0 de la couche actuelle
 					reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees[l] = &(reseau.couches[i].perceptrons[l].entrees[k]) ;
 					//printf("entree a partir du perceptron precedent = %f\n",reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees[l]->x);
+					
 				}
+			} */
+			for (int k = 0; k < reseau.couches[i-1].nb_perceptrons; k++)
+			{
+
 			}
 		}
 	}
@@ -335,7 +341,7 @@ int fonction_transfert_seuil (double somme)
 }
 
 //a partir des entrees du reseau, determine la sortie (et les entrees) de chaque perceptron du reseau
-void propagation_avant_selon_modele (RESEAU *reseau, MODELE modele)
+void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues)
 {
 	int i,j;
 
@@ -383,7 +389,7 @@ void propagation_avant_selon_modele (RESEAU *reseau, MODELE modele)
 			else //on a atteint la derniere couche donc on calcule l'erreur globale
 			{
 				printf("Perceptron final %d:\n",j);
-				(*reseau).couches[i].perceptrons[j].erreur_globale = erreur_globale_couche_finale((*reseau).couches[i].perceptrons[j] , modele.sorties_attendues[j]) ;
+				(*reseau).couches[i].perceptrons[j].erreur_globale = erreur_globale_couche_finale((*reseau).couches[i].perceptrons[j] , sorties_attendues[j]) ;
 			}
 		}
 		//passe au perceptron suivant de la meme couche

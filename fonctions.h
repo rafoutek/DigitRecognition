@@ -22,7 +22,7 @@ void affiche_reseau(RESEAU reseau);
 double somme_neurone(PERCEPTRON perceptron);
 double fonction_transfert_sigmoide(double somme);
 int fonction_transfert_seuil(double somme);
-void propagation_avant_selon_modele (RESEAU *reseau, MODELE modele);
+void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues);
 void propagation_avant_selon_entrees (RESEAU *reseau, int entree0, int entree1);
 int rand_a_b(int a, int b);
 int choix_modele(void);
