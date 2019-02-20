@@ -5,6 +5,8 @@ DonneesImageRGB* lit_imageModele(int chiffre, int num);
 void determine_sortieModeleAttendue(int chiffre, MODELE modele);
 void remplit_modeleComplet_image(DonneesImageRGB *image, MODELE_COMPLET *modeleComplet);
 void test_image_to_model(MODELE_COMPLET *modeleComplet);
+void recopie_EntreesModele_dansEntreesReseau(MODELE modele, RESEAU *reseau);
+void affiche_entrees_reseau(RESEAU reseau);
 
 RESEAU init_reseau(MODELE_COMPLET modeleComplet);
 

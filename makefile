@@ -1,7 +1,7 @@
 # Read the comments for compiling with macOS
 
 CC = gcc 
-CFLAGS = -Wall -O3 -g -c
+CFLAGS = -Wall -O1 -g -c
 LDFLAGS = graphiclib.a  -lm -lglut -lGL -lX11
 # For macOS, comment the preceding command line (put a # at the beginning)
 # and uncomment the following command line:

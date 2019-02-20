@@ -35,8 +35,13 @@ int main (void)
 				remplit_modeleComplet_image(img, &modeleComplet);
 				determine_sortieModeleAttendue(0,modeleComplet.modeles[0]);
 				affiche_modele(modeleComplet.modeles[0]);
+				printf("modele rempli !\n");
+				getchar();
 				
-				return 0;
+				//recopie entree modeleComplet dans entrees du reseau
+				recopie_EntreesModele_dansEntreesReseau(modeleComplet.modeles[0], &reseau);
+				affiche_entrees_reseau(reseau);
+				getchar();
 
 				//initialisation des poids aleatoires des perceptrons
 				srand(time(NULL));
