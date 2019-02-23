@@ -1,5 +1,7 @@
 #include <stdbool.h>
 
+#define AFFICHAGE false
+
 typedef struct ENTREE ENTREE;
 struct ENTREE{
 	double x; 

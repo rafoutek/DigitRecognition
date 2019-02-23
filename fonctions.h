@@ -3,9 +3,10 @@ void remplit_modeleComplet_XOR(MODELE_COMPLET *modeleComplet);
 
 DonneesImageRGB* lit_imageModele(int chiffre, int num);
 void determine_sortieModeleAttendue(int chiffre, MODELE modele);
-void remplit_modeleComplet_image(DonneesImageRGB *image, MODELE_COMPLET *modeleComplet);
-void test_image_to_model(MODELE_COMPLET *modeleComplet);
+void remplit_modele_depuis_image(DonneesImageRGB *image, MODELE *modele);
+void test_image_to_model(MODELE *modele);
 void recopie_EntreesModele_dansEntreesReseau(MODELE modele, RESEAU *reseau);
+void conversionValeursMatriceInt_deTaille_etRemplissageEntreesModele(int **mat, int h, int l, MODELE *modele);
 void affiche_entrees_reseau(RESEAU reseau);
 
 RESEAU init_reseau(MODELE_COMPLET modeleComplet);

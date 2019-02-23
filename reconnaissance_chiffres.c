@@ -32,7 +32,7 @@ int main (void)
 				printf("APPRENTISSAGE A PARTIR DES MODELES\n");
 				
 				img = lit_imageModele(0,0);
-				remplit_modeleComplet_image(img, &modeleComplet);
+				remplit_modele_depuis_image(img, &(modeleComplet.modeles[0]));
 				determine_sortieModeleAttendue(0,modeleComplet.modeles[0]);
 				//affiche_modele(modeleComplet.modeles[0]);
 				printf("modele rempli !\n");
@@ -71,10 +71,8 @@ int main (void)
 						//affiche_entrees_reseau(reseau);
 						propagation_avant_selon_modele(&reseau, modeleComplet.modeles[i].sorties_attendues);
 						erreurs_reseau_negligeables = erreurs_reseau_insignifiantes(reseau);
-						//getchar();
 
-						if(erreurs_reseau_negligeables)
-						{
+						if(erreurs_reseau_negligeables){
 							printf("erreurs des sorties du reseau negligeables pour le modele %d\n", i);
 						}
 						else 
@@ -85,7 +83,6 @@ int main (void)
 							retropropagation(&reseau);
 						}
 					}
-					
 					printf("\nIl y a eu %d modele(s) erronés sur %d\n",erreurs_modeles, nb_modeles_a_apprendre);
 					printf("boucle n°%d\n", nb_boucles);			
 					
