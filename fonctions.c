@@ -75,16 +75,16 @@ DonneesImageRGB* lit_imageModele(int chiffre, int num)
 	return img;
 }
 
-void determine_sortieModeleAttendue(int chiffre, MODELE modele)
+void determine_sortieModeleAttendue(int chiffre, MODELE *modele)
 {
 	//resets the array values to 0
-	memset(modele.sorties_attendues, 0, modele.nb_sorties*sizeof(double));
+	memset(modele->sorties_attendues, 0, modele->nb_sorties*sizeof(double));
 
 	//digit 0 is defined by all the outputs at 0
 	//digit 1 is defined by sortie_attendue[0]=1 
 	//etc..
 	if(chiffre>0)
-		modele.sorties_attendues[chiffre-1] = 1;
+		modele->sorties_attendues[chiffre-1] = 1;
 }
 
 void remplit_modele_depuis_image(DonneesImageRGB *image, MODELE *modele)
@@ -393,14 +393,12 @@ void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues)
 char* demande_utilisateur_image_a_test(void)
 {
 	char *cheminImageTest = (char *)malloc(sizeof(char)*50);
-	char dossier[20];
 	char nom[10];
-	printf("\nEntrez le nom du dossier contenant l'image: ");
-	scanf("%s", dossier);
+
 	printf("Entrez le nom de l'image(sans l'extension): ");
 	scanf("%s", nom);
-
-	sprintf(cheminImageTest, "./%s/%s.bmp", dossier,nom);
+	getchar();
+	sprintf(cheminImageTest, "./img_learn_bmp/%s.bmp",nom);
 	printf("Chemin de l'image à tester: %s\n", cheminImageTest);
 
 	return cheminImageTest;

@@ -31,16 +31,6 @@ int main (void)
 			case 1: //apprentissage a partir des modeles
 				printf("APPRENTISSAGE A PARTIR DES MODELES\n");
 				
-				img = lit_imageModele(0,0);
-				remplit_modele_depuis_image(img, &(modeleComplet.modeles[0]));
-				determine_sortieModeleAttendue(0,modeleComplet.modeles[0]);
-				printf("modele rempli !\n");
-
-				//recopie entree modeleComplet dans entrees du reseau
-				recopie_EntreesModele_dansEntreesReseau(modeleComplet.modeles[0], &reseau);
-				printf("modele recopié dans entrees reseau !\n");
-				getchar();
-
 				//initialisation des poids aleatoires des perceptrons
 				srand(time(NULL));
 				init_poids_alea_Reseau(&reseau);
@@ -51,36 +41,44 @@ int main (void)
 				
 				int nb_boucles = 0;
 				int nb_modeles_a_apprendre ;
+
+				int chiffre, num;
 				
 				do{
 					erreurs_modeles = 0; 
 					
 					nb_boucles ++;
 					nb_modeles_a_apprendre  = 0;
-					
-					//on peut selectionner les modeles a prendre en compte pour l'apprentissage ici
-					for( int i = 0; i < modeleComplet.nb_modeles; i++)
-					{
-						if(AFFICHAGE)
-							printf("\n\nMODELE %d\n",i);
-						nb_modeles_a_apprendre++;
-						//affiche_modele(modeleComplet.modeles[i]);
-						//affiche_entrees_reseau(reseau);
-						propagation_avant_selon_modele(&reseau, modeleComplet.modeles[i].sorties_attendues);
-						erreurs_reseau_negligeables = erreurs_reseau_insignifiantes(reseau);
 
-						if(erreurs_reseau_negligeables){
-							if(AFFICHAGE)
-								printf("erreurs des sorties du reseau negligeables pour le modele %d\n", i);
-						}
-						else 
+					//on peut selectionner les modeles a prendre en compte pour l'apprentissage ici
+					for( chiffre = 0; chiffre <= 3; chiffre++)
+					{
+						for( num = 0; num < 1; num++)
 						{
-							if(AFFICHAGE){
-								printf("au moins une sortie du reseau a une erreur non negligeable\n");
-								printf("modele %d non satisfait\n", i);	
-							}			
-							erreurs_modeles++;
-							retropropagation(&reseau);
+							nb_modeles_a_apprendre++;
+							img = lit_imageModele(chiffre,num);
+							remplit_modele_depuis_image(img, &(modeleComplet.modeles[0]));
+							determine_sortieModeleAttendue(chiffre,&(modeleComplet.modeles[0]));
+							recopie_EntreesModele_dansEntreesReseau(modeleComplet.modeles[0], &reseau);
+
+							if(AFFICHAGE)
+								printf("\n\nMODELE %d.%d\n",chiffre,num);
+							propagation_avant_selon_modele(&reseau, modeleComplet.modeles[0].sorties_attendues);
+							erreurs_reseau_negligeables = erreurs_reseau_insignifiantes(reseau);
+
+							if(erreurs_reseau_negligeables){
+								if(AFFICHAGE)
+									printf("erreurs des sorties du reseau negligeables pour le modele %d.%d\n", chiffre,num);
+							}
+							else 
+							{
+								if(AFFICHAGE){
+									printf("au moins une sortie du reseau a une erreur non negligeable\n");
+									printf("modele %d.%d non satisfait\n",chiffre,num);	
+								}			
+								erreurs_modeles++;
+								retropropagation(&reseau);
+							}
 						}
 					}
 					if(AFFICHAGE || nb_boucles%1000==0 || erreurs_modeles==0){

@@ -2,7 +2,7 @@ MODELE_COMPLET init_modeleComplet(int nb_modeles, int nb_entrees, int nb_sorties
 void remplit_modeleComplet_XOR(MODELE_COMPLET *modeleComplet);
 
 DonneesImageRGB* lit_imageModele(int chiffre, int num);
-void determine_sortieModeleAttendue(int chiffre, MODELE modele);
+void determine_sortieModeleAttendue(int chiffre, MODELE *modele);
 void remplit_modele_depuis_image(DonneesImageRGB *image, MODELE *modele);
 void test_image_to_model(MODELE *modele);
 void recopie_EntreesModele_dansEntreesReseau(MODELE modele, RESEAU *reseau);
