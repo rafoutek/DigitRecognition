@@ -220,7 +220,8 @@ void creeMatNG(DonneesImageRGB * image, int ** b, int ** v, int ** r, int ***s)
 
 void creeMatNG_V2(int h, int l, int ** b, int ** v, int ** r, int ***s)
 {
-	printf("\nCréation matrice niveaux de gris en cours...\n");
+	if(AFFICHAGE)
+		printf("\nCréation matrice niveaux de gris en cours...\n");
 	*s=alloueMatriceInt(h,l);
 	for( int i=0 ; i<h ; i++)
 	{
@@ -230,7 +231,8 @@ void creeMatNG_V2(int h, int l, int ** b, int ** v, int ** r, int ***s)
 			//printf("%d\n",(*s)[i][j]);
 		}
 	}
-	printf("Matrice niveaux de gris faite\n");
+	if(AFFICHAGE)
+		printf("Matrice niveaux de gris faite\n");
 }
 
 
@@ -346,7 +348,8 @@ float compare_histogramme (float histogramme1[256], float histogramme2[256])
 
 void seuillage(int h, int l, int ***s, int seuil)
 {
-	printf("Seuillage de la matrice...\n");
+	if(AFFICHAGE)
+		printf("Seuillage de la matrice...\n");
 	for( int i=0 ; i<h ; i++)
 	{
 		for(int j=0; j<l; j++)

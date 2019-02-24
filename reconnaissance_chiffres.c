@@ -34,20 +34,16 @@ int main (void)
 				img = lit_imageModele(0,0);
 				remplit_modele_depuis_image(img, &(modeleComplet.modeles[0]));
 				determine_sortieModeleAttendue(0,modeleComplet.modeles[0]);
-				//affiche_modele(modeleComplet.modeles[0]);
 				printf("modele rempli !\n");
-				getchar();
-				
+
 				//recopie entree modeleComplet dans entrees du reseau
 				recopie_EntreesModele_dansEntreesReseau(modeleComplet.modeles[0], &reseau);
-				//affiche_entrees_reseau(reseau);
 				printf("modele recopié dans entrees reseau !\n");
 				getchar();
 
 				//initialisation des poids aleatoires des perceptrons
 				srand(time(NULL));
 				init_poids_alea_Reseau(&reseau);
-				//initialise les biais de chaque perceptron à 0
 				init_biais_Reseau(&reseau);  
 				
 				int erreurs_modeles;
@@ -65,7 +61,8 @@ int main (void)
 					//on peut selectionner les modeles a prendre en compte pour l'apprentissage ici
 					for( int i = 0; i < modeleComplet.nb_modeles; i++)
 					{
-						printf("\n\nMODELE %d\n",i);
+						if(AFFICHAGE)
+							printf("\n\nMODELE %d\n",i);
 						nb_modeles_a_apprendre++;
 						//affiche_modele(modeleComplet.modeles[i]);
 						//affiche_entrees_reseau(reseau);
@@ -73,18 +70,23 @@ int main (void)
 						erreurs_reseau_negligeables = erreurs_reseau_insignifiantes(reseau);
 
 						if(erreurs_reseau_negligeables){
-							printf("erreurs des sorties du reseau negligeables pour le modele %d\n", i);
+							if(AFFICHAGE)
+								printf("erreurs des sorties du reseau negligeables pour le modele %d\n", i);
 						}
 						else 
 						{
-							printf("au moins une sortie du reseau a une erreur non negligeable\n");
-							printf("modele %d non satisfait\n", i);				
+							if(AFFICHAGE){
+								printf("au moins une sortie du reseau a une erreur non negligeable\n");
+								printf("modele %d non satisfait\n", i);	
+							}			
 							erreurs_modeles++;
 							retropropagation(&reseau);
 						}
 					}
-					printf("\nIl y a eu %d modele(s) erronés sur %d\n",erreurs_modeles, nb_modeles_a_apprendre);
-					printf("boucle n°%d\n", nb_boucles);			
+					if(AFFICHAGE || nb_boucles%1000==0 || erreurs_modeles==0){
+						printf("\nIl y a eu %d modele(s) erronés sur %d\n",erreurs_modeles, nb_modeles_a_apprendre);
+						printf("boucle n°%d\n", nb_boucles);
+					}
 					
 				}while(erreurs_modeles > 0);
 				
@@ -97,10 +99,11 @@ int main (void)
 			case 2: //test apprentissage
 				printf("TEST APPRENTISSAGE\n");
 				recupere_biais_et_poids_enregistres(&reseau);
-				int entree0 = get_entree();
-				int entree1 = get_entree();
-				printf("Les entrees du reseau sont %d et %d\n", entree0, entree1);
-				propagation_avant_selon_entrees(&reseau, entree0, entree1);
+				//demande à l'utilisateur quelle image il veut test
+				img = demande_et_lit_image_test();
+				remplit_modele_depuis_image(img, &(modeleComplet.modeles[0]));
+				recopie_EntreesModele_dansEntreesReseau(modeleComplet.modeles[0], &reseau);
+				propagation_avant(&reseau);
 				
 				break;
 			
