@@ -21,7 +21,7 @@ int main (void)
 	g = alloueMatriceInt(h,l);
 	int nb_entrees = h*l;
 	int nb_sorties = 9;
-	DonneesImageRGB *img;
+	DonneesImageRGB *img = (DonneesImageRGB*)calloc(1, sizeof(DonneesImageRGB));
 	MODELE_COMPLET modeleComplet = init_modeleComplet(1,nb_entrees,nb_sorties);
 	RESEAU reseau = init_reseau(modeleComplet);
 
@@ -42,7 +42,7 @@ int main (void)
 				init_biais_Reseau(&reseau);  
 				
 				int erreurs_modeles;
-				bool erreurs_reseau_negligeables;
+				//bool erreurs_reseau_negligeables;
 				
 				int nb_boucles = 0;
 				int nb_modeles_a_apprendre ;
@@ -62,8 +62,8 @@ int main (void)
 						for( num = 0; num < 10; num++)
 						{
 							nb_modeles_a_apprendre++;
-							img=NULL;
-							lit_imageModele(&img,chiffre,num,chemin_image);
+							
+							lit_imageModele(img,chiffre,num,chemin_image);
 							remplit_modele_depuis_image(img,&r,&v,&b,&g, &(modeleComplet.modeles[0]));
 							determine_sortieModeleAttendue(chiffre,&(modeleComplet.modeles[0]));
 							recopie_EntreesModele_dansEntreesReseau(modeleComplet.modeles[0], &reseau);
@@ -71,9 +71,8 @@ int main (void)
 							if(AFFICHAGE)
 								printf("\n\nMODELE %d.%d\n",chiffre,num);
 							propagation_avant_selon_modele(&reseau, modeleComplet.modeles[0].sorties_attendues);
-							erreurs_reseau_negligeables = erreurs_reseau_insignifiantes(reseau);
 
-							if(erreurs_reseau_negligeables){
+							if( erreurs_reseau_insignifiantes(reseau) ){
 								if(AFFICHAGE)
 									printf("erreurs des sorties du reseau negligeables pour le modele %d.%d\n", chiffre,num);
 							}

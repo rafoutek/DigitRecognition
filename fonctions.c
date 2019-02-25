@@ -60,11 +60,11 @@ void remplit_modeleComplet_XOR(MODELE_COMPLET *modeleComplet)
 	//~ affiche_modele_complet(modeleComplet);
 }
 
-void lit_imageModele(DonneesImageRGB **img, int chiffre, int num, char *chemin_image)
+void lit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemin_image)
 {
 	sprintf(chemin_image, "./img_learn_bmp/%d.%d.bmp", chiffre,num);
-	*img = lisBMPRGB(chemin_image);
-	if(*img == NULL)
+	remplitBMPRGB(chemin_image, img);
+	if(img == NULL)
 	{
 		perror("erreur lecture image");
 		exit(1);

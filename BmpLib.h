@@ -23,6 +23,10 @@ void libereDonneesImageRGB(DonneesImageRGB **structure);
 	contenant les informations de l'image en cas de succes, NULL sinon */
 DonneesImageRGB *lisBMPRGB(char *nom);
 
+/* Fonction essayant de lire le fichier nom, et remplissant une structure donneesImage allouée AVANT
+	avec les informations de l'image en cas de succes, NULL sinon */
+void remplitBMPRGB(char *nom, DonneesImageRGB *donneesImage);
+
 /* Fonction ecrivant les informations de l'image dans le fichier passe en parametre.
 	Renvoie faux en cas de probleme, vrai sinon */
 bool ecrisBMPRGB_Dans(DonneesImageRGB *donneesImage, char *nom);

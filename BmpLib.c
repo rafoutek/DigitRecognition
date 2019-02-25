@@ -172,6 +172,135 @@ DonneesImageRGB *lisBMPRGB(char *nom)
 	return donneesImage;
 }
 
+/* Fonction essayant de lire le fichier nom, et remplissant une structure donneesImage allouée AVANT
+	avec les informations de l'image en cas de succes, NULL sinon */
+void remplitBMPRGB(char *nom, DonneesImageRGB *donneesImage)
+{
+	bool toutOK = false;
+	
+	if
+		(donneesImage != NULL)
+	{
+		/* donneesImage != NULL */
+
+		FILE *fichierBMP;
+		
+		if
+			((fichierBMP = fopen(nom, "rb")) != NULL)
+		{
+			/* fichierBMP != NULL */
+
+			/* Si le header commence bien par 'B' et 'M'... */
+			if
+				(fgetc(fichierBMP) == 'B' && fgetc(fichierBMP) == 'M')
+			{
+				/* ... alors la suite du fichier peut etre interpretee */
+				int fileHeader[3];
+				
+				if
+					(fread(fileHeader, sizeof(fileHeader), 1, fichierBMP) == 1)
+				{
+					/* Lecture du header de fichier */
+					int offsetDonnees = little32VersNatif(fileHeader[2]);
+					
+					int bitmapInfoHeader[10];
+					if
+						(fread(bitmapInfoHeader, sizeof(bitmapInfoHeader), 1, fichierBMP) == 1)
+					{
+						/* On ne lit que les images 24 bits non compressees */
+						if
+							((little32VersNatif(bitmapInfoHeader[3]) == 0x00180001) && (little32VersNatif(bitmapInfoHeader[4]) == 0))
+						{
+							bool hautVersBas = false; // Utile pour detecter les BMP allant de haut en bas au lieu de bas vers haut
+							/* Lecture du header de bitmap (uniquement les informations qui nous interessent) */
+							donneesImage->largeurImage = little32VersNatif(bitmapInfoHeader[1]);
+							donneesImage->hauteurImage = little32VersNatif(bitmapInfoHeader[2]);
+
+							if (donneesImage->hauteurImage < 0)
+							{
+								donneesImage->hauteurImage = -donneesImage->hauteurImage;
+								hautVersBas = true;
+							}
+							
+							/* On alloue la place pour lire les donnes */
+							if
+								((donneesImage->donneesRGB = (unsigned char *)malloc((unsigned int)donneesImage->largeurImage*(unsigned int)donneesImage->hauteurImage*3)) != NULL)
+							{
+								/* donneesImage->donneesRGB != NULL */
+								
+								unsigned char *scanline;
+								/* Une scanline doit avoir une taille multiple de quatre octets */
+								int tailleScanLine = tailleScanLineRGB(donneesImage->largeurImage);
+								
+								/* On alloue la place pour lire chaque scanline */
+								if
+									((scanline = (unsigned char *)malloc((unsigned int)tailleScanLine)) != NULL)
+								{
+									/* scanline != NULL */
+									
+									/* On se positionne sur le debut des donnees a lire */
+									if
+										(fseek(fichierBMP, offsetDonnees, SEEK_SET) == 0)
+									{
+										int indexLigne;
+										unsigned char *pointeurDonnees;
+										pointeurDonnees = donneesImage->donneesRGB +
+															(hautVersBas ?
+															donneesImage->largeurImage*3*(donneesImage->hauteurImage-1) :
+															0);
+										
+										/* Tout s'est bien passe jusqu'a present */
+										toutOK = true;
+										for
+											(indexLigne = 0; (indexLigne < donneesImage->hauteurImage) && toutOK; ++indexLigne)
+										{
+											/* On recopie ligne a ligne les informations */
+											if
+												(fread(scanline, (unsigned int)tailleScanLine, 1, fichierBMP) == 1)
+											{
+												memcpy(pointeurDonnees, scanline, (unsigned int)(donneesImage->largeurImage*3));
+												if (hautVersBas)
+													pointeurDonnees -= donneesImage->largeurImage*3;
+												else
+													pointeurDonnees += donneesImage->largeurImage*3;
+											}
+											else
+											{
+												toutOK = false;
+											}
+										}
+									}
+									/* Quoi qu'il arrive il faut liberer le buffer memoire de lecture d'une scanline */
+									free(scanline);
+								}
+								
+								/* Si tout ne s'est pas bien passe, il faut liberer l'espace memoire pour stocker l'image */
+								if
+									(!toutOK)
+								{
+									free(donneesImage->donneesRGB);
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			
+			/* Quoi qu'il arrive il faut fermer le fichier */
+			fclose(fichierBMP);
+			fichierBMP = NULL;
+		}
+		
+		/* Si tout ne s'est pas bien passe on libere les donnees image et on les met a NULL */
+		if
+			(!toutOK)
+		{
+			free(donneesImage); //alloué avant la fonction, mais on libère si problème
+			donneesImage = NULL;
+		}
+	}	
+}
 /* Fonction ecrivant les informations de l'image dans le fichier passe en parametre.
 	Renvoie faux en cas de probleme, vrai sinon */
 bool ecrisBMPRGB_Dans(DonneesImageRGB *donneesImage, char *nom)
