@@ -60,19 +60,15 @@ void remplit_modeleComplet_XOR(MODELE_COMPLET *modeleComplet)
 	//~ affiche_modele_complet(modeleComplet);
 }
 
-DonneesImageRGB* lit_imageModele(int chiffre, int num)
+void lit_imageModele(DonneesImageRGB **img, int chiffre, int num, char *chemin_image)
 {
-	DonneesImageRGB *img = NULL;
-	char chemin_image[50];
-	
 	sprintf(chemin_image, "./img_learn_bmp/%d.%d.bmp", chiffre,num);
-	img = lisBMPRGB(chemin_image);
-	if(img == NULL)
+	*img = lisBMPRGB(chemin_image);
+	if(*img == NULL)
 	{
 		perror("erreur lecture image");
 		exit(1);
 	}
-	return img;
 }
 
 void determine_sortieModeleAttendue(int chiffre, MODELE *modele)
@@ -87,23 +83,14 @@ void determine_sortieModeleAttendue(int chiffre, MODELE *modele)
 		modele->sorties_attendues[chiffre-1] = 1;
 }
 
-void remplit_modele_depuis_image(DonneesImageRGB *image, MODELE *modele)
+void remplit_modele_depuis_image(DonneesImageRGB *image, int ***r, int ***v, int ***b, int ***g, MODELE *modele)
 {
-	int **r , **v, **b; //matrices couleur
-	int **g; //matrice gris puis noir et blanc
-
-	cree3MatricesInt(image,&b,&v,&r);
-	creeMatNG_V2(28,28,b,v,r,&g);
-	seuillage(28,28,&g,100);
-	conversionValeursMatriceInt_deTaille_etRemplissageEntreesModele(g,28,28,modele);
+	remplit_matricesCouleurInt(image,r,v,b);
+	remplit_matriceGrise(28,28,*b,*v,*r, g);
+	seuillage(28,28,g,100);
+	conversionValeursMatriceInt_deTaille_etRemplissageEntreesModele(*g,28,28,modele);
 }
 
-void test_image_to_model(MODELE *modele)
-{
-	DonneesImageRGB *img = lit_imageModele(0,0);
-	remplit_modele_depuis_image(img, modele);
-	affiche_modele(*modele);
-}
 
 void recopie_EntreesModele_dansEntreesReseau(MODELE modele, RESEAU *reseau)
 {
@@ -631,7 +618,7 @@ void recupere_biais_et_poids_enregistres (RESEAU *reseau)
 	}
 	
 	//lit le poids dans le fichier texte et le rentre dans son entree associee
-	printf("Recuperation des poids du reseau dans %s\n", nom_fichier);
+	printf("Recuperation des biais et des poids du reseau dans %s\n", nom_fichier);
 	for(i = 0; i < reseau->nb_couches; i++)
 	{
 		for (j = 0; j < reseau->couches[i].nb_perceptrons ; j++)

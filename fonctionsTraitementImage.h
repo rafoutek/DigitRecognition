@@ -18,11 +18,13 @@ void allocation4MatricesInt(DonneesImageRGB * image, int *** b, int *** v, int *
 
 void cree3MatricesFloat(DonneesImageRGB * image, float *** bleu, float *** vert, float *** rouge);
 void cree3MatricesInt(DonneesImageRGB * image, int *** bleu, int *** vert, int *** rouge);
+void remplit_matricesCouleurInt(DonneesImageRGB * image, int *** r, int *** v, int *** b);
 
 DonneesImageRGB *creeImage(int h, int l, int **r, int **v, int **b);
 
 void creeMatNG(DonneesImageRGB * image, int ** b, int ** v, int ** r, int ***s);
 void creeMatNG_V2(int h, int l, int ** b, int ** v, int ** r, int ***s);
+void remplit_matriceGrise(int h, int l, int ** b, int ** v, int ** r, int ***g);
 void remplaceValeurs_par_dansMatriceInt_deTaille_(int val1, int val2, int ***mat,int h,int l);
 void initTab(float tab[256] , int taille);
 

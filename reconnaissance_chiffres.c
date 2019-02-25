@@ -14,6 +14,11 @@
 int main (void)
 {
 	int h=28,l=28; //images 28x28
+	int **r, **v, **b, **g; //matrices pour lecture des images (en couleur puis gris puis seuillée)
+	r = alloueMatriceInt(h,l);
+	v = alloueMatriceInt(h,l);
+	b = alloueMatriceInt(h,l);
+	g = alloueMatriceInt(h,l);
 	int nb_entrees = h*l;
 	int nb_sorties = 9;
 	DonneesImageRGB *img;
@@ -43,7 +48,8 @@ int main (void)
 				int nb_modeles_a_apprendre ;
 
 				int chiffre, num;
-				
+				char *chemin_image = (char *)malloc(sizeof(char)*50);
+
 				do{
 					erreurs_modeles = 0; 
 					
@@ -51,13 +57,14 @@ int main (void)
 					nb_modeles_a_apprendre  = 0;
 
 					//on peut selectionner les modeles a prendre en compte pour l'apprentissage ici
-					for( chiffre = 0; chiffre <= 3; chiffre++)
+					for( chiffre = 0; chiffre <= 9; chiffre++)
 					{
-						for( num = 0; num < 1; num++)
+						for( num = 0; num < 10; num++)
 						{
 							nb_modeles_a_apprendre++;
-							img = lit_imageModele(chiffre,num);
-							remplit_modele_depuis_image(img, &(modeleComplet.modeles[0]));
+							img=NULL;
+							lit_imageModele(&img,chiffre,num,chemin_image);
+							remplit_modele_depuis_image(img,&r,&v,&b,&g, &(modeleComplet.modeles[0]));
 							determine_sortieModeleAttendue(chiffre,&(modeleComplet.modeles[0]));
 							recopie_EntreesModele_dansEntreesReseau(modeleComplet.modeles[0], &reseau);
 
@@ -99,7 +106,7 @@ int main (void)
 				recupere_biais_et_poids_enregistres(&reseau);
 				//demande à l'utilisateur quelle image il veut test
 				img = demande_et_lit_image_test();
-				remplit_modele_depuis_image(img, &(modeleComplet.modeles[0]));
+				remplit_modele_depuis_image(img,&r,&v,&b,&g, &(modeleComplet.modeles[0]));
 				recopie_EntreesModele_dansEntreesReseau(modeleComplet.modeles[0], &reseau);
 				propagation_avant(&reseau);
 				

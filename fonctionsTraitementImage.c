@@ -174,7 +174,23 @@ void cree3MatricesInt(DonneesImageRGB * image, int *** bleu, int *** vert, int *
 
 }
 
+void remplit_matricesCouleurInt(DonneesImageRGB * image, int *** r, int *** v, int *** b)
+{
+	int k=0,i,j;
 
+	for(i=0;i<image->hauteurImage;i++)
+	{
+		for(j=0;j<image->largeurImage;j++)
+		{
+			(*b)[i][j] = image->donneesRGB[k];
+			k++;
+			(*v)[i][j] = image->donneesRGB[k];
+			k++;
+			(*r)[i][j] = image->donneesRGB[k];
+			k++;
+		}
+	}
+}
 
 DonneesImageRGB *creeImage(int h, int l, int **r, int **v, int **b)
 {
@@ -235,6 +251,20 @@ void creeMatNG_V2(int h, int l, int ** b, int ** v, int ** r, int ***s)
 		printf("Matrice niveaux de gris faite\n");
 }
 
+void remplit_matriceGrise(int h, int l, int ** b, int ** v, int ** r, int ***g)
+{
+	if(AFFICHAGE)
+		printf("\nRemplissage matrice grise en cours...\n");
+	for( int i=0 ; i<h ; i++)
+	{
+		for(int j=0; j<l; j++)
+		{	
+			(*g)[i][j] = (int) (0.2125*r[i][j] + 0.7154*v[i][j] + 0.0721*b[i][j]);
+		}
+	}
+	if(AFFICHAGE)
+		printf("Matrice grise remplie\n");
+}
 
 void remplaceValeurs_par_dansMatriceInt_deTaille_(int val1, int val2, int ***mat,int h,int l)
 {

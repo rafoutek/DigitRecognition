@@ -55,3 +55,7 @@ dkms.conf
 fonctions_jpg.c
 fonctions_jpg.h
 img_learn.zip
+
+*.json
+
+fichier_poids\.txt
