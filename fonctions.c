@@ -293,7 +293,7 @@ void affiche_reseau(RESEAU reseau)
 }
 
 
-
+//fait la somme pondérée du perceptron et la retourne
 double somme_neurone(PERCEPTRON perceptron)
 {
   double sum = 0;
@@ -306,6 +306,18 @@ double somme_neurone(PERCEPTRON perceptron)
 	sum = sum + perceptron.biais;  //on ajoute le biais à la fin
 
 	return sum;
+}
+
+//fait la somme pondérée du perceptron et l'enregistre dans la variable sum passée en parametre
+void somme_neurone_V2(PERCEPTRON perceptron, double *sum)
+{
+	int i = 0;
+  do{
+	  *sum = *sum + perceptron.entrees[i].x * perceptron.entrees[i].poids;
+	  i++;
+  }while(i<perceptron.nb_entrees);
+  
+	*sum = *sum + perceptron.biais;  //on ajoute le biais à la fin
 }
 
 double fonction_transfert_sigmoide( double somme)
@@ -331,7 +343,7 @@ int fonction_transfert_seuil (double somme)
 void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues)
 {
 	int i,j;
-	double val_fonction_transfert;
+	//double val_fonction_transfert;
 
 	if(AFFICHAGE)
 		printf("\nPROPAGATION AVANT\n");
@@ -340,15 +352,13 @@ void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues)
 		for(j = 0; j < reseau->couches[i].nb_perceptrons; j++)
 		{
 			//fait la somme du perceptron a partir de ses entrees et des poids correspondants
-			reseau->couches[i].perceptrons[j].sortie_somme = somme_neurone(reseau->couches[i].perceptrons[j]);
+			somme_neurone_V2(reseau->couches[i].perceptrons[j], &(reseau->couches[i].perceptrons[j].sortie_somme));
 			
 			//fait la fonction transfert sigmoide pour chaque perceptron
-			val_fonction_transfert = fonction_transfert_sigmoide(reseau->couches[i].perceptrons[j].sortie_somme);				
-			reseau->couches[i].perceptrons[j].sortie_sigmoide = val_fonction_transfert;
+			reseau->couches[i].perceptrons[j].sortie_sigmoide = fonction_transfert_sigmoide(reseau->couches[i].perceptrons[j].sortie_somme);
 			
 			//enregistre la sortie de la fonction transfert du perceptron, ici sigmoide
 			reseau->couches[i].perceptrons[j].sortie = reseau->couches[i].perceptrons[j].sortie_sigmoide;
-			//printf("sortie = %f\n", reseau->couches[i].perceptrons[j].sortie);
 			
 			//passe cette  valeur à l'entree du perceptron de la couche suivante
 			//si couche suivant il y a
@@ -464,7 +474,7 @@ double erreur_locale_couche_finale( PERCEPTRON perceptron_final, double erreur_g
 	
 	gradient = erreur_globale * perceptron_final.sortie * (1 - perceptron_final.sortie) ;
 	if(AFFICHAGE)
-		printf("erreur globale finale = %f, sortie finale = %e :\n\terreur locale finale = %e\n", erreur_globale, perceptron_final.sortie, gradient);
+		printf("erreur globale finale = %e, sortie finale = %e :\n\terreur locale finale = %e\n", erreur_globale, perceptron_final.sortie, gradient);
 		
 	return gradient;
 }

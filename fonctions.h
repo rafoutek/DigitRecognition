@@ -20,6 +20,7 @@ void affiche_modele_complet(MODELE_COMPLET modeleComplet);
 void affiche_reseau(RESEAU reseau);
 
 double somme_neurone(PERCEPTRON perceptron);
+void somme_neurone_V2(PERCEPTRON perceptron, double *sum);
 double fonction_transfert_sigmoide(double somme);
 int fonction_transfert_seuil(double somme);
 void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues);
