@@ -1,5 +1,4 @@
 MODELE_COMPLET init_modeleComplet(int nb_modeles, int nb_entrees, int nb_sorties);
-void remplit_modeleComplet_XOR(MODELE_COMPLET *modeleComplet);
 
 void lit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemin_image);
 void determine_sortieModeleAttendue(int chiffre, MODELE *modele);

@@ -57,9 +57,9 @@ int main (void)
 					nb_modeles_a_apprendre  = 0;
 
 					//on peut selectionner les modeles a prendre en compte pour l'apprentissage ici
-					for( chiffre = 0; chiffre <= 2; chiffre++)
+					for( chiffre = 0; chiffre <= 9; chiffre++)
 					{
-						for( num = 0; num < 3; num++)
+						for( num = 0; num < 40; num++)
 						{
 							nb_modeles_a_apprendre++;
 							if(AFFICHAGE)
@@ -90,7 +90,6 @@ int main (void)
 					if(AFFICHAGE || nb_boucles%1000==0 || erreurs_modeles==0){
 						printf("\nIl y a eu %d modele(s) erronés sur %d\n",erreurs_modeles, nb_modeles_a_apprendre);
 						printf("boucle n°%d\n", nb_boucles);
-						getchar();
 					}
 					
 				}while(erreurs_modeles > 0);

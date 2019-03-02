@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#define AFFICHAGE true
+#define AFFICHAGE false
 
 typedef struct ENTREE ENTREE;
 struct ENTREE{

@@ -12,7 +12,7 @@
 #include "fonctionsTraitementImage.h"
 
 #define ACTIVATION_BIAIS 1
-#define LEARNING_SPEED 1
+#define LEARNING_SPEED 0.8
 
 //fonction de creation du modele complet
 MODELE_COMPLET init_modeleComplet(int nb_modeles, int nb_entrees, int nb_sorties)
@@ -36,28 +36,6 @@ MODELE_COMPLET init_modeleComplet(int nb_modeles, int nb_entrees, int nb_sorties
 		modeleComplet.modeles[i].sorties_attendues = (double *)malloc(sizeof(double) * modeleComplet.nb_sorties);
 	}	
 	return modeleComplet;
-}
-
-void remplit_modeleComplet_XOR(MODELE_COMPLET *modeleComplet)
-{
-	//remplissage modeles selon table de verite du XOR
-	modeleComplet->modeles[0].entrees[0].x = 0;
-	modeleComplet->modeles[0].entrees[1].x = 0;
-	modeleComplet->modeles[0].sorties_attendues[0] = 0;
-	
-	modeleComplet->modeles[1].entrees[0].x = 0;
-	modeleComplet->modeles[1].entrees[1].x = 1;
-	modeleComplet->modeles[1].sorties_attendues[0] = 1;
-	
-	modeleComplet->modeles[2].entrees[0].x = 1;
-	modeleComplet->modeles[2].entrees[1].x = 0;
-	modeleComplet->modeles[2].sorties_attendues[0] = 1;
-	
-	modeleComplet->modeles[3].entrees[0].x = 1;
-	modeleComplet->modeles[3].entrees[1].x = 1;
-	modeleComplet->modeles[3].sorties_attendues[0] = 0;		
-
-	//~ affiche_modele_complet(modeleComplet);
 }
 
 void lit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemin_image)
@@ -109,7 +87,7 @@ void recopie_EntreesModele_dansEntreesReseau(MODELE modele, RESEAU *reseau)
 void conversionValeursMatriceInt_deTaille_etRemplissageEntreesModele(int **mat, int h, int l, MODELE *modele)
 {
 	int k=0;
-	double b = pow(10,-1); //0 devient 0.1
+	double b = 0;//pow(10,-1); //0 devient 0.1
 	double a = (1.-b)/255; // 255 devient 1
 
 	for(int i = 0; i < l; i++)
@@ -146,7 +124,7 @@ RESEAU init_reseau(MODELE_COMPLET modeleComplet)
 	//initialisation du reseau
 		//couche cachee
 	reseau.couches[0].numero_couche = 0;
-	reseau.couches[0].nb_perceptrons = 2;
+	reseau.couches[0].nb_perceptrons = 13;
 		//couche sortie avec 9 perceptrons/sorties
 	reseau.couches[1].numero_couche = 1;
 	reseau.couches[1].nb_perceptrons = 9; 
@@ -281,9 +259,6 @@ void affiche_reseau(RESEAU reseau)
 				printf("   entree = %f\n",reseau.couches[i].perceptrons[j].entrees[k].x);
 				printf("   poids = %f\n",reseau.couches[i].perceptrons[j].entrees[k].poids);				
 			}
-			//printf("  sortie somme = %f\n",reseau.couches[i].perceptrons[j].sortie_somme);
-			//printf("   sortie sigmoide = %f\n",reseau.couches[i].perceptrons[j].sortie_sigmoide);
-			//printf("   sortie seuil = %f\n",reseau.couches[i].perceptrons[j].sortie_seuil);
 			printf("  sortie = %e\n",reseau.couches[i].perceptrons[j].sortie);
 			printf("  erreur globale = %e\n",reseau.couches[i].perceptrons[j].erreur_globale);
 			printf("  erreur locale = %e\n",reseau.couches[i].perceptrons[j].erreur_locale);
@@ -312,6 +287,7 @@ double somme_neurone(PERCEPTRON perceptron)
 void somme_neurone_V2(PERCEPTRON perceptron, double *sum)
 {
 	int i = 0;
+	*sum = 0;
   do{
 	  *sum = *sum + perceptron.entrees[i].x * perceptron.entrees[i].poids;
 	  i++;
@@ -454,7 +430,6 @@ void propagation_avant (RESEAU *reseau)
 	}
 	//passe à la couche suivante (avec entrees determinees)
 }
-
 
 
 //dans ce réseau le signal d'erreur global et local ne comprend qu'une valeur (car une seuile sortie)
