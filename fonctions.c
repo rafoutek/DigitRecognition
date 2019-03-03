@@ -21,21 +21,26 @@ MODELE_COMPLET init_modeleComplet(int nb_modeles, int nb_entrees, int nb_sorties
 	modeleComplet.nb_modeles = nb_modeles;
 	modeleComplet.modeles = (MODELE *)malloc(sizeof(MODELE) * modeleComplet.nb_modeles);  
 
-	//allocation tableau d'entrees de chaque modele
 	modeleComplet.nb_entrees = nb_entrees;
-	for(int i = 0; i < modeleComplet.nb_modeles ; i++)
-	{
-		modeleComplet.modeles[i].nb_entrees = modeleComplet.nb_entrees;
-		modeleComplet.modeles[i].entrees = (ENTREE *)malloc(sizeof(ENTREE) * modeleComplet.nb_entrees);
-	}
-	//allocation tableau des sorties attendues de chaque modele
 	modeleComplet.nb_sorties = nb_sorties;
+
 	for(int i = 0; i < modeleComplet.nb_modeles ; i++)
 	{
-		modeleComplet.modeles[i].nb_sorties = modeleComplet.nb_sorties;
-		modeleComplet.modeles[i].sorties_attendues = (double *)malloc(sizeof(double) * modeleComplet.nb_sorties);
-	}	
+		modeleComplet.modeles[i] = init_modele(modeleComplet.nb_entrees,modeleComplet.nb_sorties);
+	}
 	return modeleComplet;
+}
+
+MODELE init_modele(int nb_entrees, int nb_sorties)
+{
+	MODELE modele;
+
+	modele.nb_entrees = nb_entrees;
+	modele.entrees = (ENTREE *)malloc(sizeof(ENTREE) * nb_entrees);
+	modele.nb_sorties = nb_sorties;
+	modele.sorties_attendues = (double *)malloc(sizeof(double) * nb_sorties);	
+
+	return modele;
 }
 
 void lit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemin_image)
@@ -54,11 +59,10 @@ void determine_sortieModeleAttendue(int chiffre, MODELE *modele)
 	//resets the array values to 0
 	memset(modele->sorties_attendues, 0, modele->nb_sorties*sizeof(double));
 
-	//digit 0 is defined by all the outputs at 0
-	//digit 1 is defined by sortie_attendue[0]=1 
+	//digit 0 is defined by the sortie_attendue[0]=1 
+	//digit 1 is defined by sortie_attendue[1]=1 
 	//etc..
-	if(chiffre>0)
-		modele->sorties_attendues[chiffre-1] = 1;
+	modele->sorties_attendues[chiffre] = 1;
 }
 
 void remplit_modele_depuis_image(DonneesImageRGB *image, int ***r, int ***v, int ***b, int ***g, MODELE *modele)
@@ -115,7 +119,7 @@ void affiche_entrees_reseau(RESEAU reseau)
 
 //creates a structured network of perceptrons thanks to the global model of data (number of inputs), 
 //change the network caracteristics/values in the function as you want
-RESEAU init_reseau(MODELE_COMPLET modeleComplet)
+RESEAU init_reseau(MODELE modele)
 {
 	RESEAU reseau;
 	reseau.nb_couches = 2;
@@ -124,10 +128,10 @@ RESEAU init_reseau(MODELE_COMPLET modeleComplet)
 	//initialisation du reseau
 		//couche cachee
 	reseau.couches[0].numero_couche = 0;
-	reseau.couches[0].nb_perceptrons = 13;
-		//couche sortie avec 9 perceptrons/sorties
+	reseau.couches[0].nb_perceptrons = 21;
+		//couche sortie avec 10 perceptrons/sorties
 	reseau.couches[1].numero_couche = 1;
-	reseau.couches[1].nb_perceptrons = 9; 
+	reseau.couches[1].nb_perceptrons = modele.nb_sorties; 
 	
 	for(int i = 0 ; i< reseau.nb_couches ; i++)
 	{
@@ -137,7 +141,7 @@ RESEAU init_reseau(MODELE_COMPLET modeleComplet)
 		{
 			if(i==0){
 				//ici chaque perceptron de la premiere couche cachee a <nb_entrees> entrees
-				reseau.couches[i].perceptrons[j].nb_entrees = modeleComplet.nb_entrees;
+				reseau.couches[i].perceptrons[j].nb_entrees = modele.nb_entrees;
 			}
 			else{
 				//sinon chaque perceptron des couches suivantes ont autant d'entrees que le nb de perceptrons de la couche precedente
@@ -397,7 +401,7 @@ void propagation_avant (RESEAU *reseau)
 	int i,j;
 	double val_fonction_transfert;
 	
-	printf("\nPROPAGATION AVANT\n");
+	if(AFFICHAGE) printf("\nPROPAGATION AVANT\n");
 	for(i = 0; i < reseau->nb_couches; i++)
 	{
 		for(j = 0; j < reseau->couches[i].nb_perceptrons; j++)
@@ -423,7 +427,7 @@ void propagation_avant (RESEAU *reseau)
 			}
 			else //on a atteint la derniere couche donc on affiche la sortie
 			{
-				printf("La sortie du perceptron %d de la couche sortie = %f\n", j, reseau->couches[i].perceptrons[j].sortie);
+				if(AFFICHAGE) printf("La sortie du perceptron %d de la couche sortie = %f\n", j, reseau->couches[i].perceptrons[j].sortie);
 			}
 		}
 		//passe au perceptron suivant de la meme couche
@@ -431,6 +435,41 @@ void propagation_avant (RESEAU *reseau)
 	//passe à la couche suivante (avec entrees determinees)
 }
 
+// pour une image testée on affiche sa ressemblance avec chaque chiffre
+void cree_et_affiche_classement_ressemblance(RESEAU reseau)
+{
+	CLASSEMENT tab_classement [10];
+
+	//on recopie d'abord les sorties dans le tableau
+	for(int i = 0; i < 10; i++)
+	{
+		tab_classement[i].chiffre = i;
+		tab_classement[i].pourcentage_ressemblance = reseau.couches[reseau.nb_couches-1].perceptrons[i].sortie * 100;
+	}
+
+	// on trie
+	int i,j;
+	CLASSEMENT placeTemporaire;
+	for (i=0; i<10; i++)
+	{
+		for(j=i; j<10; j++)
+		{
+			if(tab_classement[j].pourcentage_ressemblance > tab_classement[i].pourcentage_ressemblance) 
+			{
+				placeTemporaire = tab_classement[i];
+				tab_classement[i] = tab_classement[j];
+				tab_classement[j] = placeTemporaire;
+			}
+		}
+	}
+	// on affiche
+	printf("\nClassement pourcentage ressemblance:\n");
+	for(int k = 0; k < 10; k++)
+	{
+		printf("\t%d\t%f %%\n",tab_classement[k].chiffre, tab_classement[k].pourcentage_ressemblance);
+	}
+	
+}
 
 //dans ce réseau le signal d'erreur global et local ne comprend qu'une valeur (car une seuile sortie)
 double erreur_globale_couche_finale( PERCEPTRON perceptron_final, double sortie_attendue )

@@ -51,3 +51,9 @@ struct RESEAU{
 	int nb_couches;
 	COUCHE *couches;
 };
+
+typedef struct CLASSEMENT CLASSEMENT;
+struct CLASSEMENT{
+	int chiffre;
+	double pourcentage_ressemblance;
+};

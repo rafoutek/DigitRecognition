@@ -19,11 +19,11 @@ int main (void)
 	v = alloueMatriceInt(h,l);
 	b = alloueMatriceInt(h,l);
 	g = alloueMatriceInt(h,l);
-	int nb_entrees = h*l;
-	int nb_sorties = 9;
+	int nb_entrees = h*l; // chaque pixel est une entree
+	int nb_sorties = 10; // chaque sortie correspond à un chiffre
 	DonneesImageRGB *img = (DonneesImageRGB*)calloc(1, sizeof(DonneesImageRGB));
-	MODELE_COMPLET modeleComplet = init_modeleComplet(1,nb_entrees,nb_sorties);
-	RESEAU reseau = init_reseau(modeleComplet);
+	MODELE modele = init_modele(nb_entrees,nb_sorties);
+	RESEAU reseau = init_reseau(modele);
 
 
 	int choix_menu = 0;
@@ -59,18 +59,17 @@ int main (void)
 					//on peut selectionner les modeles a prendre en compte pour l'apprentissage ici
 					for( chiffre = 0; chiffre <= 9; chiffre++)
 					{
-						for( num = 0; num < 40; num++)
+						for( num = 0; num < 50; num++)
 						{
 							nb_modeles_a_apprendre++;
 							if(AFFICHAGE)
 								printf("\n\nMODELE %d.%d\n",chiffre,num);
 
 							lit_imageModele(img,chiffre,num,chemin_image);
-							remplit_modele_depuis_image(img,&r,&v,&b,&g, &(modeleComplet.modeles[0]));
-							determine_sortieModeleAttendue(chiffre,&(modeleComplet.modeles[0]));
-							recopie_EntreesModele_dansEntreesReseau(modeleComplet.modeles[0], &reseau);
-
-							propagation_avant_selon_modele(&reseau, modeleComplet.modeles[0].sorties_attendues);
+							remplit_modele_depuis_image(img,&r,&v,&b,&g, &(modele));
+							determine_sortieModeleAttendue(chiffre,&(modele));
+							recopie_EntreesModele_dansEntreesReseau(modele, &reseau);
+							propagation_avant_selon_modele(&reseau, modele.sorties_attendues);
 
 							if( erreurs_reseau_insignifiantes(reseau) ){
 								if(AFFICHAGE)
@@ -105,10 +104,10 @@ int main (void)
 				recupere_biais_et_poids_enregistres(&reseau);
 				//demande à l'utilisateur quelle image il veut test
 				img = demande_et_lit_image_test();
-				remplit_modele_depuis_image(img,&r,&v,&b,&g, &(modeleComplet.modeles[0]));
-				recopie_EntreesModele_dansEntreesReseau(modeleComplet.modeles[0], &reseau);
+				remplit_modele_depuis_image(img,&r,&v,&b,&g, &(modele));
+				recopie_EntreesModele_dansEntreesReseau(modele, &reseau);
 				propagation_avant(&reseau);
-				
+				cree_et_affiche_classement_ressemblance(reseau);
 				break;
 			
 			case 3:
@@ -120,9 +119,8 @@ int main (void)
 	
 	
 	//liberation pointeurs
-	for(int i = 0; i < modeleComplet.nb_modeles ; i++)
-		free(modeleComplet.modeles[i].entrees);
-	free(modeleComplet.modeles);
+	free(modele.entrees);
+	free(modele.sorties_attendues);
 	
 	for(int i = 0 ; i< reseau.nb_couches ; i++)
 	{

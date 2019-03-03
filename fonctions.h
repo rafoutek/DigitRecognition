@@ -1,4 +1,5 @@
 MODELE_COMPLET init_modeleComplet(int nb_modeles, int nb_entrees, int nb_sorties);
+MODELE init_modele(int nb_entrees, int nb_sorties);
 
 void lit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemin_image);
 void determine_sortieModeleAttendue(int chiffre, MODELE *modele);
@@ -7,7 +8,7 @@ void recopie_EntreesModele_dansEntreesReseau(MODELE modele, RESEAU *reseau);
 void conversionValeursMatriceInt_deTaille_etRemplissageEntreesModele(int **mat, int h, int l, MODELE *modele);
 void affiche_entrees_reseau(RESEAU reseau);
 
-RESEAU init_reseau(MODELE_COMPLET modeleComplet);
+RESEAU init_reseau(MODELE modele);
 
 
 void init_poids_alea_modeleComplet(MODELE_COMPLET *modeleComplet);
@@ -27,6 +28,7 @@ void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues);
 char* demande_utilisateur_image_a_test(void);
 DonneesImageRGB* demande_et_lit_image_test(void);
 void propagation_avant (RESEAU *reseau);
+void cree_et_affiche_classement_ressemblance(RESEAU reseau);
 int rand_a_b(int a, int b);
 int choix_modele(void);
 
