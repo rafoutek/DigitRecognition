@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
 
 #include "BmpLib.h"
 #include "definitions.h"
@@ -13,6 +14,8 @@
 
 int main (void)
 {
+	clock_t start_t, end_t, total_t;
+
 	int h=28,l=28; //images 28x28
 	int **r, **v, **b, **g; //matrices pour lecture des images (en couleur puis gris puis seuillée)
 	r = alloueMatriceInt(h,l);
@@ -50,6 +53,7 @@ int main (void)
 				int chiffre, num;
 				char *chemin_image = (char *)malloc(sizeof(char)*50);
 
+				start_t = clock(); // temps depuis lancement du programme
 				do{
 					erreurs_modeles = 0; 
 					
@@ -92,11 +96,13 @@ int main (void)
 					}
 					
 				}while(erreurs_modeles > 0);
-				
+				end_t = clock();
+				total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+
 				printf("TOUS LES MODELES SONT SATISFAITS AVEC CES POIDS!\n");
-				
 				enregistrement_biais_et_poids_reseau(reseau);
-		
+
+				printf("Temps total pris par CPU pour trouver les bons parametres: %f\n", total_t  );
 				break;
 				
 			case 2: //test apprentissage
