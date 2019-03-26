@@ -174,6 +174,7 @@ void cree3MatricesInt(DonneesImageRGB * image, int *** bleu, int *** vert, int *
 
 }
 
+// remplit les matrices r v b déjà allouées
 void remplit_matricesCouleurInt(DonneesImageRGB * image, int *** r, int *** v, int *** b)
 {
 	int k=0,i,j;
@@ -251,6 +252,7 @@ void creeMatNG_V2(int h, int l, int ** b, int ** v, int ** r, int ***s)
 		printf("Matrice niveaux de gris faite\n");
 }
 
+// remplit la matrice grise préallouée à partir des matrices coulleur r v b
 void remplit_matriceGrise(int h, int l, int ** b, int ** v, int ** r, int ***g)
 {
 	if(AFFICHAGE)
@@ -396,6 +398,7 @@ void seuillage(int h, int l, int ***s, int seuil)
 	}
 }
 
+// ne marche pas, je crois aha
 void seuillage_V2(int h, int l, int seuil, int **g, int ***nb)
 {
 	printf("Seuillage de la matrice...\n");

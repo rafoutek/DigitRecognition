@@ -1,7 +1,8 @@
 MODELE_COMPLET init_modeleComplet(int nb_modeles, int nb_entrees, int nb_sorties);
 MODELE init_modele(int nb_entrees, int nb_sorties);
 
-void lit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemin_image);
+void remplit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemin_image);
+DonneesImageRGB *lis_imageModele(int chiffre, int num, char *chemin_image);
 void determine_sortieModeleAttendue(int chiffre, MODELE *modele);
 void remplit_modele_depuis_image(DonneesImageRGB *image, int ***r, int ***v, int ***b, int ***g, MODELE *modele);
 void recopie_EntreesModele_dansEntreesReseau(MODELE modele, RESEAU *reseau);

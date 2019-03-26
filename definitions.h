@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #define AFFICHAGE false
+#define ERROR 2
 
 typedef struct ENTREE ENTREE;
 struct ENTREE{

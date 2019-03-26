@@ -43,15 +43,29 @@ MODELE init_modele(int nb_entrees, int nb_sorties)
 	return modele;
 }
 
-void lit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemin_image)
+void remplit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemin_image)
 {
 	sprintf(chemin_image, "./img_learn_bmp/%d.%d.bmp", chiffre,num);
 	remplitBMPRGB(chemin_image, img);
 	if(img == NULL)
 	{
 		perror("erreur lecture image");
+		free(img);
 		exit(1);
 	}
+}
+
+DonneesImageRGB *lis_imageModele( int chiffre, int num, char *chemin_image)
+{
+	sprintf(chemin_image, "./img_learn_bmp/%d.%d.bmp", chiffre,num);
+	DonneesImageRGB *img =  lisBMPRGB(chemin_image);
+	if(img == NULL)
+	{
+		perror("erreur lecture image");
+		free(img);
+		exit(1);
+	}
+	return img;
 }
 
 void determine_sortieModeleAttendue(int chiffre, MODELE *modele)
@@ -392,7 +406,7 @@ DonneesImageRGB* demande_et_lit_image_test(void)
 		if(img == NULL)
 			perror("erreur lecture image");
 	}while(img == NULL);
-	
+	free(chemin_image);
 	return img;
 }
 
@@ -571,7 +585,7 @@ void retropropagation (RESEAU *reseau)
 
 bool erreur_insignifiante ( double erreur_globale)
 {
-	if(erreur_globale >= -pow(10, -2) && erreur_globale <= pow(10, -2)) //puissance à changer, plus elle est grande plus l'apprentissage est long, plus les poids sont précis
+	if(erreur_globale >= -pow(10, -ERROR) && erreur_globale <= pow(10, -ERROR)) //puissance à changer, plus elle est grande plus l'apprentissage est long, plus les poids sont précis
 		return true;
 	else return false;
 }

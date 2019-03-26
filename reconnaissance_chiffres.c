@@ -24,7 +24,7 @@ int main (void)
 	g = alloueMatriceInt(h,l);
 	int nb_entrees = h*l; // chaque pixel est une entree
 	int nb_sorties = 10; // chaque sortie correspond à un chiffre
-	DonneesImageRGB *img = (DonneesImageRGB*)calloc(1, sizeof(DonneesImageRGB));
+	DonneesImageRGB *img  = (DonneesImageRGB*)calloc(1, sizeof(DonneesImageRGB));
 	MODELE modele = init_modele(nb_entrees,nb_sorties);
 	RESEAU reseau = init_reseau(modele);
 
@@ -55,7 +55,7 @@ int main (void)
 
 				start_t = clock(); // temps depuis lancement du programme
 				do{
-					erreurs_modeles = 0; 
+					erreurs_modeles = 1; 
 					
 					nb_boucles ++;
 					nb_modeles_a_apprendre  = 0;
@@ -69,8 +69,8 @@ int main (void)
 							if(AFFICHAGE)
 								printf("\n\nMODELE %d.%d\n",chiffre,num);
 
-							lit_imageModele(img,chiffre,num,chemin_image);
-							remplit_modele_depuis_image(img,&r,&v,&b,&g, &(modele));
+							remplit_imageModele(img,chiffre,num,chemin_image);
+ 							remplit_modele_depuis_image(img,&r,&v,&b,&g, &(modele));
 							determine_sortieModeleAttendue(chiffre,&(modele));
 							recopie_EntreesModele_dansEntreesReseau(modele, &reseau);
 							propagation_avant_selon_modele(&reseau, modele.sorties_attendues);
@@ -87,12 +87,13 @@ int main (void)
 								}			
 								erreurs_modeles++;
 								retropropagation(&reseau);
-							}
+							} 
 						}
 					}
-					if(AFFICHAGE || nb_boucles%1000==0 || erreurs_modeles==0){
+					if(AFFICHAGE || nb_boucles%100==0 || erreurs_modeles==0){
 						printf("\nIl y a eu %d modele(s) erronés sur %d\n",erreurs_modeles, nb_modeles_a_apprendre);
 						printf("boucle n°%d\n", nb_boucles);
+						getchar();
 					}
 					
 				}while(erreurs_modeles > 0);
@@ -103,6 +104,7 @@ int main (void)
 				enregistrement_biais_et_poids_reseau(reseau);
 
 				printf("Temps total pris par CPU pour trouver les bons parametres: %f\n", total_t  );
+				free(chemin_image);
 				break;
 				
 			case 2: //test apprentissage
@@ -125,6 +127,11 @@ int main (void)
 	
 	
 	//liberation pointeurs
+	free(img);
+	libereMatriceInt(h,l,r);
+	libereMatriceInt(h,l,v);
+	libereMatriceInt(h,l,b);
+	libereMatriceInt(h,l,g);
 	free(modele.entrees);
 	free(modele.sorties_attendues);
 	
