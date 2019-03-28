@@ -55,7 +55,7 @@ int main (void)
 
 				start_t = clock(); // temps depuis lancement du programme
 				do{
-					erreurs_modeles = 0; 
+					erreurs_modeles = 1; 
 					
 					nb_boucles ++;
 					nb_modeles_a_apprendre  = 0;
@@ -105,6 +105,7 @@ int main (void)
 				enregistrement_biais_et_poids_reseau(reseau);
 
 				printf("Temps total pris par CPU pour trouver les bons parametres: %f\n", total_t  );
+				free(chemin_image);
 				break;
 				
 			case 2: //test apprentissage
@@ -127,6 +128,11 @@ int main (void)
 	
 	
 	//liberation pointeurs
+	free(img);
+	libereMatriceInt(h,l,r);
+	libereMatriceInt(h,l,v);
+	libereMatriceInt(h,l,b);
+	libereMatriceInt(h,l,g);
 	free(modele.entrees);
 	free(modele.sorties_attendues);
 	
