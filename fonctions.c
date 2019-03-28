@@ -43,7 +43,7 @@ MODELE init_modele(int nb_entrees, int nb_sorties)
 	return modele;
 }
 
-void lit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemin_image)
+void remplit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemin_image)
 {
 	sprintf(chemin_image, "./img_learn_bmp/%d.%d.bmp", chiffre,num);
 	remplitBMPRGB(chemin_image, img);
@@ -52,6 +52,18 @@ void lit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemin_im
 		perror("erreur lecture image");
 		exit(1);
 	}
+}
+
+DonneesImageRGB *lis_imageModele(int chiffre, int num, char *chemin_image)
+{
+	sprintf(chemin_image, "./img_learn_bmp/%d.%d.bmp", chiffre,num);
+	DonneesImageRGB *img = lisBMPRGB(chemin_image);
+	if(img == NULL)
+	{
+		perror("erreur lecture image");
+		exit(1);
+	}
+	return img;
 }
 
 void determine_sortieModeleAttendue(int chiffre, MODELE *modele)
