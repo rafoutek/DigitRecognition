@@ -55,7 +55,7 @@ int main (void)
 
 				start_t = clock(); // temps depuis lancement du programme
 				do{
-					erreurs_modeles = 1; 
+					erreurs_modeles = 0; 
 					
 					nb_boucles ++;
 					nb_modeles_a_apprendre  = 0;
@@ -88,13 +88,12 @@ int main (void)
 								erreurs_modeles++;
 								retropropagation(&reseau);
 							} 
-							libereDonneesImageRGB(&img);
+							libereDonneesImageRGB(&img); // libere l'espace allouée à la lecture de l'image modèle
 						}
 					}
 					if(AFFICHAGE || nb_boucles%100==0 || erreurs_modeles==0){
 						printf("\nIl y a eu %d modele(s) erronés sur %d\n",erreurs_modeles, nb_modeles_a_apprendre);
 						printf("boucle n°%d\n", nb_boucles);
-						getchar();
 					}
 					
 				}while(erreurs_modeles > 0);
@@ -104,7 +103,7 @@ int main (void)
 				printf("TOUS LES MODELES SONT SATISFAITS AVEC CES POIDS!\n");
 				enregistrement_biais_et_poids_reseau(reseau);
 
-				printf("Temps total pris par CPU pour trouver les bons parametres: %f\n", total_t  );
+				printf("Temps total pris par CPU pour trouver les bons parametres: %f\n", (double)total_t  );
 				free(chemin_image);
 				break;
 				

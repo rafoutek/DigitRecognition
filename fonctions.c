@@ -129,23 +129,44 @@ void affiche_entrees_reseau(RESEAU reseau)
 	}
 }
 
-
+// set the number of neurones depending on the layer
+// these constants are defined in definitions.h
+void init_nb_neurones_couche(int couche, int *nb_neurones)
+{
+	switch(couche)
+	{
+		case 1:
+			(*nb_neurones) = NB_NEURONES_LAYER_1;
+			break;
+		case 2:
+			(*nb_neurones) = NB_NEURONES_LAYER_2;
+			break;
+		case 3:
+			(*nb_neurones) = NB_NEURONES_LAYER_3;
+			break;
+	}
+}
 
 //creates a structured network of perceptrons thanks to the global model of data (number of inputs), 
 //change the network caracteristics/values in the function as you want
 RESEAU init_reseau(MODELE modele)
 {
 	RESEAU reseau;
-	reseau.nb_couches = 2;
+	reseau.nb_couches = NB_LAYERS; // cf definitions.h
 	reseau.couches = (COUCHE *)malloc(sizeof(COUCHE) * reseau.nb_couches);
 	
 	//initialisation du reseau
-		//couche cachee
-	reseau.couches[0].numero_couche = 0;
-	reseau.couches[0].nb_perceptrons = 21;
-		//couche sortie avec 10 perceptrons/sorties
-	reseau.couches[1].numero_couche = 1;
-	reseau.couches[1].nb_perceptrons = modele.nb_sorties; 
+	for(int i = 0; i < reseau.nb_couches; i++)
+	{
+		reseau.couches[i].numero_couche = i;
+	}
+	for(int i = 0; i < reseau.nb_couches-1; i++)
+	{
+		init_nb_neurones_couche(i,&(reseau.couches[i].nb_perceptrons));
+	}
+
+	// couche sortie avec 10 perceptrons/sorties
+	reseau.couches[reseau.nb_couches-1].nb_perceptrons = modele.nb_sorties; 
 	
 	for(int i = 0 ; i< reseau.nb_couches ; i++)
 	{

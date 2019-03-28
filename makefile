@@ -2,7 +2,7 @@
 
 CC = gcc 
 CFLAGS = -Wall -O2 -g -c
-LDFLAGS = graphiclib.a  -lm -lglut -lGL -lX11
+LDFLAGS = -lm -lglut -lGL -lX11 
 # For macOS, comment the preceding command line (put a # at the beginning)
 # and uncomment the following command line:
 #LDFLAGS = graphiclib.a -framework OpenGL -framework GLUT
