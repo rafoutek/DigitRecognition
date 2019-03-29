@@ -2,7 +2,7 @@
 
 #define AFFICHAGE false
 
-#define NB_LAYERS 1
+#define NB_LAYERS 2
 #define NB_NEURONES_LAYER_1 10
 #define NB_NEURONES_LAYER_2 10
 #define NB_NEURONES_LAYER_3 10
