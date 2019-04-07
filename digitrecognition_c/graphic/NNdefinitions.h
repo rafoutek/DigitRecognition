@@ -2,11 +2,14 @@
 
 #define AFFICHAGE false
 
-#define NB_LAYERS 3 // dont la couche de sortie
-#define NB_NEURONES_LAYER_1 6
-#define NB_NEURONES_LAYER_2 15
+#define NB_LAYERS 2 // dont la couche de sortie
+#define NB_NEURONES_LAYER_1 60
+#define NB_NEURONES_LAYER_2 25
 #define NB_NEURONES_LAYER_3 10
 
+
+#define ACTIVATION_BIAIS 1
+#define LEARNING_SPEED 0.8
 #define ERROR 2
 
 typedef struct ENTREE ENTREE;

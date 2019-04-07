@@ -11,8 +11,6 @@
 #include "fonctions.h"
 #include "fonctionsTraitementImage.h"
 
-#define ACTIVATION_BIAIS 1
-#define LEARNING_SPEED 0.8
 
 //fonction de creation du modele complet
 MODELE_COMPLET init_modeleComplet(int nb_modeles, int nb_entrees, int nb_sorties)
