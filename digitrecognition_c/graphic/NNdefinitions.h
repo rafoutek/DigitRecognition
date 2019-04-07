@@ -2,9 +2,9 @@
 
 #define AFFICHAGE false
 
-#define NB_LAYERS 2 // dont la couche de sortie
-#define NB_NEURONES_LAYER_1 20
-#define NB_NEURONES_LAYER_2 10
+#define NB_LAYERS 3 // dont la couche de sortie
+#define NB_NEURONES_LAYER_1 6
+#define NB_NEURONES_LAYER_2 15
 #define NB_NEURONES_LAYER_3 10
 
 #define ERROR 2
@@ -41,16 +41,16 @@ struct PERCEPTRON{
 	ENTREE *entrees;
 	double sortie_somme;
 	double sortie_sigmoide, sortie_seuil, sortie;
-	double erreur_globale, erreur_locale; //erreur globale si perceptron appartient à la couche sortie
+	double erreur_globale, erreur_locale; //erreur globale si neurone appartient à la couche sortie
 	int nb_entrees_suivantes_liees;
-	ENTREE **entrees_suivantes_liees; //sortie du perceptron va à ces entrées
+	ENTREE **entrees_suivantes_liees; //sortie du neurone va à ces entrées
 };
 
 typedef struct COUCHE COUCHE;
 struct COUCHE{
 	int numero_couche;
-	int nb_perceptrons;
-	PERCEPTRON *perceptrons;
+	int nb_neurones;
+	PERCEPTRON *neurones;
 };
 
 typedef struct RESEAU RESEAU;

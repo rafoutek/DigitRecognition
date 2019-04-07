@@ -1,11 +1,14 @@
 #define AFFICHAGE false
+#define LARGEUR_FENETRE  800
+#define HAUTEUR_FENETRE  600
+
 #define ECART_AXES 30 // ecart du bord de l'ihm
 
 #define MAX_Y 500. // max ordonnee
 #define INTERVALLE_Y 50.
 
 #define MAX_X 5000. // max abscisse
-#define INTERVALLE_X 1000.
+#define INTERVALLE_X 500.
 
 
 typedef struct zone {

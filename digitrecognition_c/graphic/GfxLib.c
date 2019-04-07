@@ -283,6 +283,7 @@ void termineBoucleEvenements(void)
 	exit(0);
 }
 
+
 /* Demande la mise a jour du contenu graphique de la fenetre, en lancant un message d'affichage */
 void rafraichisFenetre(void)
 {

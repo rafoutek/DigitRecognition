@@ -92,11 +92,11 @@ void recopie_EntreesModele_dansEntreesReseau(MODELE modele, RESEAU *reseau)
 {
 	if(AFFICHAGE)
 		printf("Recopie entrees modele dans reseau\n");
-	for(int i = 0; i < reseau->couches[0].nb_perceptrons; i++)
+	for(int i = 0; i < reseau->couches[0].nb_neurones; i++)
 	{
-		for(int j = 0; j < reseau->couches[0].perceptrons[i].nb_entrees; j++)
+		for(int j = 0; j < reseau->couches[0].neurones[i].nb_entrees; j++)
 		{
-			reseau->couches[0].perceptrons[i].entrees[j].x = modele.entrees[j].x;
+			reseau->couches[0].neurones[i].entrees[j].x = modele.entrees[j].x;
 		}
 	}
 }
@@ -118,14 +118,14 @@ void conversionValeursMatriceInt_deTaille_etRemplissageEntreesModele(int **mat, 
 	}
 }
 
-//affiche les entrees du premier perceptron de la premiere couche
-//doit contenir toutes les entrees du modele (comme tous les perceptrons de la premiere couche)
+//affiche les entrees du premier neurone de la premiere couche
+//doit contenir toutes les entrees du modele (comme tous les neurones de la premiere couche)
 void affiche_entrees_reseau(RESEAU reseau)
 {
 	printf("Entrees du reseau:\n");
-	for(int i = 0; i < reseau.couches[0].perceptrons[0].nb_entrees; i++)
+	for(int i = 0; i < reseau.couches[0].neurones[0].nb_entrees; i++)
 	{
-		printf(" entree reseau %d = %f\n",i,reseau.couches[0].perceptrons[0].entrees[i].x);
+		printf(" entree reseau %d = %f\n",i,reseau.couches[0].neurones[0].entrees[i].x);
 	}
 }
 
@@ -136,19 +136,19 @@ void init_nb_neurones_couche(int couche, int *nb_neurones)
 {
 	switch(couche)
 	{
-		case 1:
+		case 0:
 			(*nb_neurones) = NB_NEURONES_LAYER_1;
 			break;
-		case 2:
+		case 1:
 			(*nb_neurones) = NB_NEURONES_LAYER_2;
 			break;
-		case 3:
+		case 2:
 			(*nb_neurones) = NB_NEURONES_LAYER_3;
 			break;
 	}
 }
 
-//creates a structured network of perceptrons thanks to the global model of data (number of inputs), 
+//creates a structured network of neurones thanks to the global model of data (number of inputs), 
 //change the network caracteristics/values in the function as you want
 RESEAU init_reseau(MODELE modele)
 {
@@ -161,43 +161,46 @@ RESEAU init_reseau(MODELE modele)
 	{
 		reseau.couches[i].numero_couche = i;
 	}
-	//initialisation du reseau
-		//couche cachee
-	reseau.couches[0].numero_couche = 0;
-	reseau.couches[0].nb_perceptrons = 21;
-		//couche sortie avec 10 perceptrons/sorties
-	reseau.couches[1].numero_couche = 1;
-	reseau.couches[reseau.nb_couches-1].nb_perceptrons = modele.nb_sorties; 
+	
+	//couche cachee
+	for(int i = 0; i< reseau.nb_couches-1; i++)
+	{
+		init_nb_neurones_couche(i,&(reseau.couches[i].nb_neurones));
+		printf("nb neurones couche cachee %d = %d\n", i, reseau.couches[i].nb_neurones);
+	}
+
+	//couche sortie avec 10 neurones/sorties
+	reseau.couches[reseau.nb_couches-1].nb_neurones = modele.nb_sorties; 
 	
 
 	for(int i = 0 ; i< reseau.nb_couches ; i++)
 	{
-		reseau.couches[i].perceptrons = (PERCEPTRON *)malloc(sizeof(PERCEPTRON) * reseau.couches[i].nb_perceptrons);
+		reseau.couches[i].neurones = (PERCEPTRON *)malloc(sizeof(PERCEPTRON) * reseau.couches[i].nb_neurones);
 		
-		for(int j = 0; j< reseau.couches[i].nb_perceptrons; j++)
+		for(int j = 0; j< reseau.couches[i].nb_neurones; j++)
 		{
 			if(i==0){
-				//ici chaque perceptron de la premiere couche cachee a <nb_entrees> entrees
-				reseau.couches[i].perceptrons[j].nb_entrees = modele.nb_entrees;
+				//ici chaque neurone de la premiere couche cachee a <nb_entrees> entrees
+				reseau.couches[i].neurones[j].nb_entrees = modele.nb_entrees;
 			}
 			else{
-				//sinon chaque perceptron des couches suivantes ont autant d'entrees que le nb de perceptrons de la couche precedente
-				reseau.couches[i].perceptrons[j].nb_entrees = reseau.couches[i-1].nb_perceptrons;
+				//sinon chaque neurone des couches suivantes ont autant d'entrees que le nb de neurones de la couche precedente
+				reseau.couches[i].neurones[j].nb_entrees = reseau.couches[i-1].nb_neurones;
 			}
-			reseau.couches[i].perceptrons[j].entrees = (ENTREE *)malloc(sizeof(ENTREE) * reseau.couches[i].perceptrons[j].nb_entrees);
+			reseau.couches[i].neurones[j].entrees = (ENTREE *)malloc(sizeof(ENTREE) * reseau.couches[i].neurones[j].nb_entrees);
 		} 
 		
-		//liens entre entrees perceptrons de la couche et entrees suivantes de la couche precedente
+		//liens entre entrees neurones de la couche et entrees suivantes de la couche precedente
 		if(i > 0) 
 		{
-			for (int k = 0; k < reseau.couches[i-1].nb_perceptrons; k++)
+			for (int k = 0; k < reseau.couches[i-1].nb_neurones; k++)
 			{
-				reseau.couches[i-1].perceptrons[k].nb_entrees_suivantes_liees = reseau.couches[i].nb_perceptrons;
-				reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees = (ENTREE **)malloc(sizeof(ENTREE *) * reseau.couches[i].nb_perceptrons);
+				reseau.couches[i-1].neurones[k].nb_entrees_suivantes_liees = reseau.couches[i].nb_neurones;
+				reseau.couches[i-1].neurones[k].entrees_suivantes_liees = (ENTREE **)malloc(sizeof(ENTREE *) * reseau.couches[i].nb_neurones);
 				
-				for(int l = 0; l < reseau.couches[i].nb_perceptrons; l++)
+				for(int l = 0; l < reseau.couches[i].nb_neurones; l++)
 				{
-					reseau.couches[i-1].perceptrons[k].entrees_suivantes_liees[l] = reseau.couches[i].perceptrons[l].entrees ;
+					reseau.couches[i-1].neurones[k].entrees_suivantes_liees[l] = reseau.couches[i].neurones[l].entrees ;
 				}
 			}
 		}
@@ -225,11 +228,11 @@ void init_poids_alea_Reseau(RESEAU *reseau)
 	
 	for(i = 0; i < reseau->nb_couches; i++)
 	{
-		for(j = 0; j < reseau->couches[i].nb_perceptrons; j++)
+		for(j = 0; j < reseau->couches[i].nb_neurones; j++)
 		{
-			for(k = 0; k < reseau->couches[i].perceptrons[j].nb_entrees; k++)
+			for(k = 0; k < reseau->couches[i].neurones[j].nb_entrees; k++)
 			{			
-				(*reseau).couches[i].perceptrons[j].entrees[k].poids = (double)rand()/RAND_MAX - 0.5;
+				(*reseau).couches[i].neurones[j].entrees[k].poids = (double)rand()/RAND_MAX - 0.5;
 			}
 		}
 	}		
@@ -241,9 +244,9 @@ void init_biais_Reseau(RESEAU *reseau)
 	
 	for(i = 0; i < reseau->nb_couches; i++)
 	{
-		for(j = 0; j < reseau->couches[i].nb_perceptrons; j++)
+		for(j = 0; j < reseau->couches[i].nb_neurones; j++)
 		{
-			(*reseau).couches[i].perceptrons[j].biais = 0.;
+			(*reseau).couches[i].neurones[j].biais = 0.;
 		}
 	}		
 }
@@ -291,50 +294,50 @@ void affiche_reseau(RESEAU reseau)
 	printf("reseau avec %d couche(s)\n", reseau.nb_couches);
 	for(i = 0; i < reseau.nb_couches; i++)
 	{
-		printf(" couche %d a %d perceptron(s)\n", i, reseau.couches[i].nb_perceptrons);
-		for(j = 0; j < reseau.couches[i].nb_perceptrons; j++)
+		printf(" couche %d a %d neurone(s)\n", i, reseau.couches[i].nb_neurones);
+		for(j = 0; j < reseau.couches[i].nb_neurones; j++)
 		{
-			printf("  perceptron %d a %d entree(s)\n", j, reseau.couches[i].perceptrons[j].nb_entrees);
-			for(k = 0; k < reseau.couches[i].perceptrons[j].nb_entrees; k++)
+			printf("  neurone %d a %d entree(s)\n", j, reseau.couches[i].neurones[j].nb_entrees);
+			for(k = 0; k < reseau.couches[i].neurones[j].nb_entrees; k++)
 			{	
-				printf("   entree = %f\n",reseau.couches[i].perceptrons[j].entrees[k].x);
-				printf("   poids = %f\n",reseau.couches[i].perceptrons[j].entrees[k].poids);				
+				printf("   entree = %f\n",reseau.couches[i].neurones[j].entrees[k].x);
+				printf("   poids = %f\n",reseau.couches[i].neurones[j].entrees[k].poids);				
 			}
-			printf("  sortie = %e\n",reseau.couches[i].perceptrons[j].sortie);
-			printf("  erreur globale = %e\n",reseau.couches[i].perceptrons[j].erreur_globale);
-			printf("  erreur locale = %e\n",reseau.couches[i].perceptrons[j].erreur_locale);
-			printf("  nb entrees couche suivante liees = %d\n",reseau.couches[i].perceptrons[j].nb_entrees_suivantes_liees);			
+			printf("  sortie = %e\n",reseau.couches[i].neurones[j].sortie);
+			printf("  erreur globale = %e\n",reseau.couches[i].neurones[j].erreur_globale);
+			printf("  erreur locale = %e\n",reseau.couches[i].neurones[j].erreur_locale);
+			printf("  nb entrees couche suivante liees = %d\n",reseau.couches[i].neurones[j].nb_entrees_suivantes_liees);			
 		}
 	}		
 }
 
 
-//fait la somme pondérée du perceptron et la retourne
-double somme_neurone(PERCEPTRON perceptron)
+//fait la somme pondérée du neurone et la retourne
+double somme_neurone(PERCEPTRON neurone)
 {
   double sum = 0;
 	int i = 0;
   do{
-	  sum = sum + perceptron.entrees[i].x * perceptron.entrees[i].poids;
+	  sum = sum + neurone.entrees[i].x * neurone.entrees[i].poids;
 	  i++;
-  }while(i<perceptron.nb_entrees);
+  }while(i<neurone.nb_entrees);
   
-	sum = sum + perceptron.biais;  //on ajoute le biais à la fin
+	sum = sum + neurone.biais;  //on ajoute le biais à la fin
 
 	return sum;
 }
 
-//fait la somme pondérée du perceptron et l'enregistre dans la variable sum passée en parametre
-void somme_neurone_V2(PERCEPTRON perceptron, double *sum)
+//fait la somme pondérée du neurone et l'enregistre dans la variable sum passée en parametre
+void somme_neurone_V2(PERCEPTRON neurone, double *sum)
 {
 	int i = 0;
 	*sum = 0;
   do{
-	  *sum = *sum + perceptron.entrees[i].x * perceptron.entrees[i].poids;
+	  *sum = *sum + neurone.entrees[i].x * neurone.entrees[i].poids;
 	  i++;
-  }while(i<perceptron.nb_entrees);
+  }while(i<neurone.nb_entrees);
   
-	*sum = *sum + perceptron.biais;  //on ajoute le biais à la fin
+	*sum = *sum + neurone.biais;  //on ajoute le biais à la fin
 }
 
 double fonction_transfert_sigmoide( double somme)
@@ -356,7 +359,7 @@ int fonction_transfert_seuil (double somme)
 	
 }
 
-//a partir des entrees du reseau, determine la sortie (et les entrees) de chaque perceptron du reseau
+//a partir des entrees du reseau, determine la sortie (et les entrees) de chaque neurone du reseau
 void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues)
 {
 	int i,j;
@@ -366,40 +369,40 @@ void propagation_avant_selon_modele (RESEAU *reseau, double *sorties_attendues)
 		printf("\nPROPAGATION AVANT\n");
 	for(i = 0; i < reseau->nb_couches; i++)
 	{
-		for(j = 0; j < reseau->couches[i].nb_perceptrons; j++)
+		for(j = 0; j < reseau->couches[i].nb_neurones; j++)
 		{
-			//fait la somme du perceptron a partir de ses entrees et des poids correspondants
-			somme_neurone_V2(reseau->couches[i].perceptrons[j], &(reseau->couches[i].perceptrons[j].sortie_somme));
+			//fait la somme du neurone a partir de ses entrees et des poids correspondants
+			somme_neurone_V2(reseau->couches[i].neurones[j], &(reseau->couches[i].neurones[j].sortie_somme));
 			
-			//fait la fonction transfert sigmoide pour chaque perceptron
-			reseau->couches[i].perceptrons[j].sortie_sigmoide = fonction_transfert_sigmoide(reseau->couches[i].perceptrons[j].sortie_somme);
+			//fait la fonction transfert sigmoide pour chaque neurone
+			reseau->couches[i].neurones[j].sortie_sigmoide = fonction_transfert_sigmoide(reseau->couches[i].neurones[j].sortie_somme);
 			
-			//enregistre la sortie de la fonction transfert du perceptron, ici sigmoide
-			reseau->couches[i].perceptrons[j].sortie = reseau->couches[i].perceptrons[j].sortie_sigmoide;
+			//enregistre la sortie de la fonction transfert du neurone, ici sigmoide
+			reseau->couches[i].neurones[j].sortie = reseau->couches[i].neurones[j].sortie_sigmoide;
 			
-			//passe cette  valeur à l'entree du perceptron de la couche suivante
+			//passe cette  valeur à l'entree du neurone de la couche suivante
 			//si couche suivant il y a
 			if( i+1 < reseau->nb_couches)
 			{
 				if(AFFICHAGE){
 					printf("Couche cachee %d:\n", i);
-					printf("Sortie perceptron %d = %e\n",j, reseau->couches[i].perceptrons[j].sortie);
+					printf("Sortie neurone %d = %e\n",j, reseau->couches[i].neurones[j].sortie);
 				}
-				for(int k = 0; k < reseau->couches[i].perceptrons[j].nb_entrees_suivantes_liees ; k++)
+				for(int k = 0; k < reseau->couches[i].neurones[j].nb_entrees_suivantes_liees ; k++)
 				{
-					reseau->couches[i].perceptrons[j].entrees_suivantes_liees[k][j].x = reseau->couches[i].perceptrons[j].sortie;
+					reseau->couches[i].neurones[j].entrees_suivantes_liees[k][j].x = reseau->couches[i].neurones[j].sortie;
 				}
 				if(AFFICHAGE)
-					printf("Passée à l'entree %d des perceptrons de la couche suivante\n",j);
+					printf("Passée à l'entree %d des neurones de la couche suivante\n",j);
 			}
 			else //on a atteint la derniere couche donc on calcule l'erreur globale
 			{
 				if(AFFICHAGE)
 					printf("Perceptron final %d:\n",j);
-				(*reseau).couches[i].perceptrons[j].erreur_globale = erreur_globale_couche_finale((*reseau).couches[i].perceptrons[j] , sorties_attendues[j]) ;
+				(*reseau).couches[i].neurones[j].erreur_globale = erreur_globale_couche_finale((*reseau).couches[i].neurones[j] , sorties_attendues[j]) ;
 			}
 		}
-		//passe au perceptron suivant de la meme couche
+		//passe au neurone suivant de la meme couche
 	}
 	//passe à la couche suivante (avec entrees determinees)
 }
@@ -441,33 +444,33 @@ void propagation_avant (RESEAU *reseau)
 	if(AFFICHAGE) printf("\nPROPAGATION AVANT\n");
 	for(i = 0; i < reseau->nb_couches; i++)
 	{
-		for(j = 0; j < reseau->couches[i].nb_perceptrons; j++)
+		for(j = 0; j < reseau->couches[i].nb_neurones; j++)
 		{
-			//fait la somme du perceptron a partir de ses entrees et des poids correspondants
-			reseau->couches[i].perceptrons[j].sortie_somme = somme_neurone(reseau->couches[i].perceptrons[j]);
+			//fait la somme du neurone a partir de ses entrees et des poids correspondants
+			reseau->couches[i].neurones[j].sortie_somme = somme_neurone(reseau->couches[i].neurones[j]);
 			
-			//fait la fonction transfert sigmoide pour chaque perceptron
-			val_fonction_transfert = fonction_transfert_sigmoide(reseau->couches[i].perceptrons[j].sortie_somme);				
-			reseau->couches[i].perceptrons[j].sortie_sigmoide = val_fonction_transfert;
+			//fait la fonction transfert sigmoide pour chaque neurone
+			val_fonction_transfert = fonction_transfert_sigmoide(reseau->couches[i].neurones[j].sortie_somme);				
+			reseau->couches[i].neurones[j].sortie_sigmoide = val_fonction_transfert;
 			
-			//enregistre la sortie de la fonction transfert du perceptron
-			reseau->couches[i].perceptrons[j].sortie = val_fonction_transfert;
+			//enregistre la sortie de la fonction transfert du neurone
+			reseau->couches[i].neurones[j].sortie = val_fonction_transfert;
 			
-			//passe cette valeur à l'entree des perceptrons de la couche suivante
+			//passe cette valeur à l'entree des neurones de la couche suivante
 			//si couche suivant il y a
 			if( i+1 < reseau->nb_couches)
 			{
-				for(int k = 0; k < reseau->couches[i].perceptrons[j].nb_entrees_suivantes_liees ; k++)
+				for(int k = 0; k < reseau->couches[i].neurones[j].nb_entrees_suivantes_liees ; k++)
 				{
-					reseau->couches[i].perceptrons[j].entrees_suivantes_liees[k][j].x = reseau->couches[i].perceptrons[j].sortie;
+					reseau->couches[i].neurones[j].entrees_suivantes_liees[k][j].x = reseau->couches[i].neurones[j].sortie;
 				}
 			}
 			else //on a atteint la derniere couche donc on affiche la sortie
 			{
-				if(AFFICHAGE) printf("La sortie du perceptron %d de la couche sortie = %f\n", j, reseau->couches[i].perceptrons[j].sortie);
+				if(AFFICHAGE) printf("La sortie du neurone %d de la couche sortie = %f\n", j, reseau->couches[i].neurones[j].sortie);
 			}
 		}
-		//passe au perceptron suivant de la meme couche
+		//passe au neurone suivant de la meme couche
 	}
 	//passe à la couche suivante (avec entrees determinees)
 }
@@ -481,7 +484,7 @@ void cree_et_affiche_classement_ressemblance(RESEAU reseau)
 	for(int i = 0; i < 10; i++)
 	{
 		tab_classement[i].chiffre = i;
-		tab_classement[i].pourcentage_ressemblance = reseau.couches[reseau.nb_couches-1].perceptrons[i].sortie * 100;
+		tab_classement[i].pourcentage_ressemblance = reseau.couches[reseau.nb_couches-1].neurones[i].sortie * 100;
 	}
 
 	// on trie
@@ -509,52 +512,52 @@ void cree_et_affiche_classement_ressemblance(RESEAU reseau)
 }
 
 //dans ce réseau le signal d'erreur global et local ne comprend qu'une valeur (car une seuile sortie)
-double erreur_globale_couche_finale( PERCEPTRON perceptron_final, double sortie_attendue )
+double erreur_globale_couche_finale( PERCEPTRON neurone_final, double sortie_attendue )
 {
 	double e;
 	
-	e = sortie_attendue - perceptron_final.sortie ;
+	e = sortie_attendue - neurone_final.sortie ;
 	if(AFFICHAGE)
-		printf("sortie attendue = %.0f, sortie finale = %e :\n\terreur globale finale = %f\n", sortie_attendue, perceptron_final.sortie, e);
+		printf("sortie attendue = %.0f, sortie finale = %e :\n\terreur globale finale = %f\n", sortie_attendue, neurone_final.sortie, e);
 		
 	return e;
 }
-double erreur_locale_couche_finale( PERCEPTRON perceptron_final, double erreur_globale )
+double erreur_locale_couche_finale( PERCEPTRON neurone_final, double erreur_globale )
 {
 	double gradient;
 	
-	gradient = erreur_globale * perceptron_final.sortie * (1 - perceptron_final.sortie) ;
+	gradient = erreur_globale * neurone_final.sortie * (1 - neurone_final.sortie) ;
 	if(AFFICHAGE)
-		printf("erreur globale finale = %e, sortie finale = %e :\n\terreur locale finale = %e\n", erreur_globale, perceptron_final.sortie, gradient);
+		printf("erreur globale finale = %e, sortie finale = %e :\n\terreur locale finale = %e\n", erreur_globale, neurone_final.sortie, gradient);
 		
 	return gradient;
 }
 
-//enregistre l'erreur locale du perceptron dans ses entrées, sert pour la retropropagation
-void enregistre_erreur_locale_dans_entreesPerceptron (PERCEPTRON *perceptron)
+//enregistre l'erreur locale du neurone dans ses entrées, sert pour la retropropagation
+void enregistre_erreur_locale_dans_entreesPerceptron (PERCEPTRON *neurone)
 {
-	for (int i = 0; i < perceptron->nb_entrees; i++)
+	for (int i = 0; i < neurone->nb_entrees; i++)
 	{
-		perceptron->entrees[i].erreur_locale = perceptron->erreur_locale;
-		//printf("erreur locale enregistree dans entree %d = %f\n", i,perceptron->entrees[i].erreur_locale);
+		neurone->entrees[i].erreur_locale = neurone->erreur_locale;
+		//printf("erreur locale enregistree dans entree %d = %f\n", i,neurone->entrees[i].erreur_locale);
 	}
 }
 
-void calcul_et_enregistre_erreurLocalePerceptron (PERCEPTRON *perceptron, int num_perceptron)
+void calcul_et_enregistre_erreurLocalePerceptron (PERCEPTRON *neurone, int num_neurone)
 {
 	int i;
 	double mul = 0;
 	
-	for (i=0; i< perceptron->nb_entrees_suivantes_liees; i++)
+	for (i=0; i< neurone->nb_entrees_suivantes_liees; i++)
 	{
-		mul += perceptron->entrees_suivantes_liees[i][num_perceptron].poids * perceptron->entrees_suivantes_liees[i]->erreur_locale;
-		//printf("entree %d = %f avec poids = %f et erreur locale perceptron = %f\n",i, perceptron.entrees_suivantes_liees[i]->x,perceptron.entrees_suivantes_liees[i]->poids, perceptron.entrees_suivantes_liees[i]->erreur_locale);
+		mul += neurone->entrees_suivantes_liees[i][num_neurone].poids * neurone->entrees_suivantes_liees[i]->erreur_locale;
+		//printf("entree %d = %f avec poids = %f et erreur locale neurone = %f\n",i, neurone.entrees_suivantes_liees[i]->x,neurone.entrees_suivantes_liees[i]->poids, neurone.entrees_suivantes_liees[i]->erreur_locale);
 		//printf("tour %d mul = %f\n",i, mul);
 	}
 	
-	perceptron->erreur_locale = perceptron->sortie * (1 - perceptron->sortie ) * mul;
+	neurone->erreur_locale = neurone->sortie * (1 - neurone->sortie ) * mul;
 	if(AFFICHAGE)
-		printf("erreur locale perceptron couche cachee = %e\n", perceptron->erreur_locale);
+		printf("erreur locale neurone couche cachee = %e\n", neurone->erreur_locale);
 }
 
 
@@ -569,38 +572,38 @@ void retropropagation (RESEAU *reseau)
 	{
 		if(AFFICHAGE)
 			printf("couche %d\n", i);
-		for (j = 0; j < (*reseau).couches[i].nb_perceptrons; j++)//erreur pour chaque perceptron de la couche
+		for (j = 0; j < (*reseau).couches[i].nb_neurones; j++)//erreur pour chaque neurone de la couche
 		{
 			if(AFFICHAGE)
-				printf(" perceptron %d\n", j);			
+				printf(" neurone %d\n", j);			
 			if( i == (*reseau).nb_couches-1 )
 			{
-				erreur_locale = erreur_locale_couche_finale((*reseau).couches[i].perceptrons[j] , (*reseau).couches[i].perceptrons[j].erreur_globale) ;
+				erreur_locale = erreur_locale_couche_finale((*reseau).couches[i].neurones[j] , (*reseau).couches[i].neurones[j].erreur_globale) ;
 				//enregistrement dans structure
-				(*reseau).couches[i].perceptrons[j].erreur_locale = erreur_locale;	
-				enregistre_erreur_locale_dans_entreesPerceptron(&((*reseau).couches[i].perceptrons[j]));			
+				(*reseau).couches[i].neurones[j].erreur_locale = erreur_locale;	
+				enregistre_erreur_locale_dans_entreesPerceptron(&((*reseau).couches[i].neurones[j]));			
 			}
-			else   //calcule l'erreur locale de chaque perceptron des couches cachees
+			else   //calcule l'erreur locale de chaque neurone des couches cachees
 			{
-				calcul_et_enregistre_erreurLocalePerceptron(&((*reseau).couches[i].perceptrons[j]),j);
+				calcul_et_enregistre_erreurLocalePerceptron(&((*reseau).couches[i].neurones[j]),j);
 			}
 			if(AFFICHAGE)
-				printf("  ancien biais = %e, ", (*reseau).couches[i].perceptrons[j].biais);
+				printf("  ancien biais = %e, ", (*reseau).couches[i].neurones[j].biais);
 			if( ACTIVATION_BIAIS == 1)
-				(*reseau).couches[i].perceptrons[j].biais = (*reseau).couches[i].perceptrons[j].biais + LEARNING_SPEED * (*reseau).couches[i].perceptrons[j].erreur_locale;
+				(*reseau).couches[i].neurones[j].biais = (*reseau).couches[i].neurones[j].biais + LEARNING_SPEED * (*reseau).couches[i].neurones[j].erreur_locale;
 			if(AFFICHAGE)
-				printf("  nouveau biais = %e\n", (*reseau).couches[i].perceptrons[j].biais);
+				printf("  nouveau biais = %e\n", (*reseau).couches[i].neurones[j].biais);
 			
-			//modif des poids des entrees du perceptron
-			for (k = 0; k < (*reseau).couches[i].perceptrons[j].nb_entrees ; k++)
+			//modif des poids des entrees du neurone
+			for (k = 0; k < (*reseau).couches[i].neurones[j].nb_entrees ; k++)
 			{
 				if(AFFICHAGE){
-					printf("  entree %d = %e", k,(*reseau).couches[i].perceptrons[j].entrees[k].x);
-					printf(" erreur locale = %e \n\tancien poids  = %e\n", (*reseau).couches[i].perceptrons[j].erreur_locale , (*reseau).couches[i].perceptrons[j].entrees[k].poids);
+					printf("  entree %d = %e", k,(*reseau).couches[i].neurones[j].entrees[k].x);
+					printf(" erreur locale = %e \n\tancien poids  = %e\n", (*reseau).couches[i].neurones[j].erreur_locale , (*reseau).couches[i].neurones[j].entrees[k].poids);
 				}
-				(*reseau).couches[i].perceptrons[j].entrees[k].poids = (*reseau).couches[i].perceptrons[j].entrees[k].poids + LEARNING_SPEED * (*reseau).couches[i].perceptrons[j].erreur_locale * (*reseau).couches[i].perceptrons[j].entrees[k].x; // W* = W + n * erreur locale perceptron * entree correspondant a ce poids
+				(*reseau).couches[i].neurones[j].entrees[k].poids = (*reseau).couches[i].neurones[j].entrees[k].poids + LEARNING_SPEED * (*reseau).couches[i].neurones[j].erreur_locale * (*reseau).couches[i].neurones[j].entrees[k].x; // W* = W + n * erreur locale neurone * entree correspondant a ce poids
 				if(AFFICHAGE)
-					printf("\tnouveau poids = %e\n", (*reseau).couches[i].perceptrons[j].entrees[k].poids);
+					printf("\tnouveau poids = %e\n", (*reseau).couches[i].neurones[j].entrees[k].poids);
 			}
 		}
 	}
@@ -613,23 +616,23 @@ bool erreur_insignifiante ( double erreur_globale)
 	else return false;
 }
 
-//test si l'erreur de chaque perceptron de la sortie est negligeable, retourne false si au moins une erreur n'est pas negligeable
+//test si l'erreur de chaque neurone de la sortie est negligeable, retourne false si au moins une erreur n'est pas negligeable
 bool erreurs_reseau_insignifiantes (RESEAU reseau)
 {
 	bool erreur_negligeable;
 	
-	for(int i = 0; i < reseau.couches[reseau.nb_couches-1].nb_perceptrons; i++)
+	for(int i = 0; i < reseau.couches[reseau.nb_couches-1].nb_neurones; i++)
 	{
-		erreur_negligeable = erreur_insignifiante(reseau.couches[reseau.nb_couches-1].perceptrons[i].erreur_globale);
+		erreur_negligeable = erreur_insignifiante(reseau.couches[reseau.nb_couches-1].neurones[i].erreur_globale);
 		if(erreur_negligeable)
 		{
 			if(AFFICHAGE)
-				printf("\nerreur insignifiante pour le perceptron-sortie %d\n", i);
+				printf("\nerreur insignifiante pour le neurone-sortie %d\n", i);
 		}
 		else 
 		{
 			if(AFFICHAGE)
-				printf("\nerreur non negligeable pour le perceptron-sortie %d\n", i);		
+				printf("\nerreur non negligeable pour le neurone-sortie %d\n", i);		
 			return false;
 		}
 	}
@@ -649,16 +652,16 @@ void enregistrement_biais_et_poids_reseau(RESEAU reseau)
 		exit(1); //si erreur d'ouverture on quitte avec code d'erreur
 	}
 	
-	//ecrit le poids de chaque entree de chaque perceptron de chaque couche du reseau
+	//ecrit le poids de chaque entree de chaque neurone de chaque couche du reseau
 	printf("Enregistrement des biais et des poids du reseau dans %s\n", nom_fichier);
 	for(i = 0; i < reseau.nb_couches; i++)
 	{
-		for (j = 0; j < reseau.couches[i].nb_perceptrons ; j++)
+		for (j = 0; j < reseau.couches[i].nb_neurones ; j++)
 		{
-			fprintf(fichier_poids, "%f ", reseau.couches[i].perceptrons[j].biais);
-			for (k = 0; k < reseau.couches[i].perceptrons[j].nb_entrees; k++)
+			fprintf(fichier_poids, "%f ", reseau.couches[i].neurones[j].biais);
+			for (k = 0; k < reseau.couches[i].neurones[j].nb_entrees; k++)
 			{
-				fprintf(fichier_poids, "%f ", reseau.couches[i].perceptrons[j].entrees[k].poids);
+				fprintf(fichier_poids, "%f ", reseau.couches[i].neurones[j].entrees[k].poids);
 			}
 			
 		}
@@ -682,12 +685,12 @@ void recupere_biais_et_poids_enregistres (RESEAU *reseau)
 	printf("Recuperation des biais et des poids du reseau dans %s\n", nom_fichier);
 	for(i = 0; i < reseau->nb_couches; i++)
 	{
-		for (j = 0; j < reseau->couches[i].nb_perceptrons ; j++)
+		for (j = 0; j < reseau->couches[i].nb_neurones ; j++)
 		{
-			fscanf(fichier_poids, "%lf ", &(reseau->couches[i].perceptrons[j].biais));
-			for (k = 0; k < reseau->couches[i].perceptrons[j].nb_entrees; k++)
+			fscanf(fichier_poids, "%lf ", &(reseau->couches[i].neurones[j].biais));
+			for (k = 0; k < reseau->couches[i].neurones[j].nb_entrees; k++)
 			{
-				fscanf(fichier_poids, "%lf ", &(reseau->couches[i].perceptrons[j].entrees[k].poids));
+				fscanf(fichier_poids, "%lf ", &(reseau->couches[i].neurones[j].entrees[k].poids));
 			}
 			
 		}

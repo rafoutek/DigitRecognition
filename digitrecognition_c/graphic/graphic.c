@@ -22,20 +22,13 @@
 
 static char *titre = "Neural Network learning graph";
 
-// Largeur et hauteur par defaut d'une image correspondant a nos criteres
-static int LargeurFenetre = 800;
-static int HauteurFenetre = 600;
-
-//sert à lier GfxLib.c et graphic.c pour modifier LargeurFenetre et HauteurFenetre  (Redimmensionnement)
-extern int varLargeurFenetre;
-extern int varHauteurFenetre;
 
 
 int lanceFenetreGraphique(int argc, char **argv)
 {
 	initialiseGfx(argc, argv);
 
-	prepareFenetreGraphique(titre, LargeurFenetre, HauteurFenetre);
+	prepareFenetreGraphique(titre, LARGEUR_FENETRE, HAUTEUR_FENETRE);
 
 	/* Lance la boucle qui aiguille les evenements sur la fonction gestionEvenement ci-apres,
 	   qui elle-meme utilise fonctionAffichage ci-dessous */
@@ -78,7 +71,7 @@ void gestionEvenement(EvenementGfx evenement)
 		case Initialisation:
 			demandeTemporisation(0);
 			chargeImagesIHM(&retour,&home,&croix,&logo);
-			initZones(&zQuit,&zHome,&zRetour,&zTitre, retour,home,croix, LargeurFenetre,HauteurFenetre, titre);
+			initZones(&zQuit,&zHome,&zRetour,&zTitre, retour,home,croix, titre);
 			initGraph(&zGraph);
 
 			h=28,l=28;
@@ -92,7 +85,7 @@ void gestionEvenement(EvenementGfx evenement)
 			reseau = init_reseau(modele);
 			printf("APPRENTISSAGE A PARTIR DES MODELES\n");
 			
-			//initialisation des poids aleatoires des perceptrons
+			//initialisation des poids aleatoires des neurones
 			srand(time(NULL));
 			init_poids_alea_Reseau(&reseau);
 			init_biais_Reseau(&reseau); 
@@ -109,22 +102,49 @@ void gestionEvenement(EvenementGfx evenement)
 
 		case Temporisation:
 
+			if(nb_boucles == 0)
+				start_t = clock();
+			
 			// boucle effectuée à chaque temporisation
 			apprentissage(&r,&v,&b,&g,img,&modele,&reseau,chemin_image,&(erreurs[nb_boucles]), &nb_boucles);
 
-			if(erreurs[nb_boucles] == 0) // apprentissage fini
+			if(erreurs[nb_boucles] == 0 || nb_boucles == MAX_X) // apprentissage fini ou pas fini avant le maximum d'itérations
 			{
 				end_t = clock();
 				total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC;
 
-				printf("TOUS LES MODELES SONT SATISFAITS AVEC CES POIDS!\n");
-				enregistrement_biais_et_poids_reseau(reseau);
+				if(erreurs[nb_boucles] == 0)
+					printf("TOUS LES MODELES SONT SATISFAITS AVEC CES POIDS!\n");
+				else printf("Les bons paramètres n'ont pas été trouvé avant le nombre max d'itération, on les enregistre quand meme.\n");
 				
-				printf("Temps total pris par CPU pour trouver les bons parametres: %f\n", (double)total_t  );
+				enregistrement_biais_et_poids_reseau(reseau);
+	
+				printf("Temps total: %ld sec\n", total_t  );
 				
 				// fin du programme
-				free(chemin_image);
-				free(erreurs);
+				free(chemin_image); chemin_image = NULL;
+				free(erreurs); erreurs = NULL;
+
+				printf("Entrez un caractere pour quitter\n");
+				getchar();
+				//liberation pointeurs
+				libereMatriceInt(h,l,r);
+				libereMatriceInt(h,l,v);
+				libereMatriceInt(h,l,b);
+				libereMatriceInt(h,l,g);
+				free(modele.entrees);
+				free(modele.sorties_attendues);
+				
+				for(int i = 0 ; i< reseau.nb_couches ; i++)
+				{
+					for(int j = 0; j< reseau.couches[i].nb_neurones ; j++)
+					{
+						free(reseau.couches[i].neurones[j].entrees);
+						free(reseau.couches[i].neurones[j].entrees_suivantes_liees);
+					}
+					free(reseau.couches[i].neurones);
+				}
+				free(reseau.couches);
 				termineBoucleEvenements();
 			}
 
@@ -133,43 +153,17 @@ void gestionEvenement(EvenementGfx evenement)
 			break;
 
 		case Affichage:
-			switch (numPage)
-			{
-				case 1:
-					// On part d'un fond d'ecran blanc
-					effaceFenetre (255, 255, 255);
 
-					monIHM(zQuit,zHome,zRetour,retour,home,croix,logo,numPage);
-					afficheTitre(zTitre);
+			monIHM(zQuit,zHome,zRetour,retour,home,croix,logo,numPage);
+			afficheTitre(zTitre);
 
-					// display of learning graph
-					couleurCourante(255,255,255);
-					rectangle(zGraph.xmin-30,zGraph.ymin-20,zGraph.xmax+20,zGraph.ymax+20);
-					afficheAxesGraph(zGraph);
-
-					// une fois le graph affiché on peut commencer l'apprentissage	
-					numPage = 2;					
-					start_t = clock(); // temps depuis lancement du programme			
-		
-					break;
-				
-				case 2:
-					// On part d'un fond d'ecran blanc
-					effaceFenetre (255, 255, 255);
-
-					monIHM(zQuit,zHome,zRetour,retour,home,croix,logo,numPage);
-					afficheTitre(zTitre);
-
-					// display of learning graph
-					couleurCourante(255,255,255);
-					rectangle(zGraph.xmin-30,zGraph.ymin-20,zGraph.xmax+20,zGraph.ymax+20);
-					afficheAxesGraph(zGraph);
-					afficheTousLesPoints(erreurs, nb_boucles, zGraph);
-					break;
+			// display of learning graph
+			couleurCourante(255,255,255);
+			rectangle(zGraph.xmin-30,zGraph.ymin-20,zGraph.xmax+20,zGraph.ymax+20);
 			
-				default:
-					break;
-			}
+			
+			afficheAxesGraph(zGraph);
+			afficheTousLesPoints(erreurs, nb_boucles, zGraph);
 
 			//rafraichisFenetre();
 			break;
@@ -180,7 +174,25 @@ void gestionEvenement(EvenementGfx evenement)
 			{
 				case 'q':
 				case 'Q':
-					exit(0);
+					//liberation pointeurs
+					libereMatriceInt(h,l,r);
+					libereMatriceInt(h,l,v);
+					libereMatriceInt(h,l,b);
+					libereMatriceInt(h,l,g);
+					free(modele.entrees);
+					free(modele.sorties_attendues);
+					
+					for(int i = 0 ; i< reseau.nb_couches ; i++)
+					{
+						for(int j = 0; j< reseau.couches[i].nb_neurones ; j++)
+						{
+							free(reseau.couches[i].neurones[j].entrees);
+							free(reseau.couches[i].neurones[j].entrees_suivantes_liees);
+						}
+						free(reseau.couches[i].neurones);
+					}
+					free(reseau.couches);
+					termineBoucleEvenements();
 					break;
 			}
 			break;
@@ -194,7 +206,25 @@ void gestionEvenement(EvenementGfx evenement)
 			{
 				if (zQuit.xmin<abscisseSouris() && abscisseSouris()<zQuit.xmax && zQuit.ymin<ordonneeSouris() && ordonneeSouris()<zQuit.ymax)
 				{
-					exit(0);
+					//liberation pointeurs
+					libereMatriceInt(h,l,r);
+					libereMatriceInt(h,l,v);
+					libereMatriceInt(h,l,b);
+					libereMatriceInt(h,l,g);
+					free(modele.entrees);
+					free(modele.sorties_attendues);
+					
+					for(int i = 0 ; i< reseau.nb_couches ; i++)
+					{
+						for(int j = 0; j< reseau.couches[i].nb_neurones ; j++)
+						{
+							free(reseau.couches[i].neurones[j].entrees);
+							free(reseau.couches[i].neurones[j].entrees_suivantes_liees);
+						}
+						free(reseau.couches[i].neurones);
+					}
+					free(reseau.couches);
+					termineBoucleEvenements();
 				}
 
 
@@ -227,9 +257,7 @@ void gestionEvenement(EvenementGfx evenement)
 
 		case Redimensionnement: // La taille de la fenetre a ete modifie ou on est passe en plein ecran
 			// Donc le systeme nous en informe
-			LargeurFenetre = varLargeurFenetre;
-			HauteurFenetre = varHauteurFenetre;
-			redimensionneZones(&zQuit,&zHome,&zRetour,&zTitre,retour,home,croix, LargeurFenetre,HauteurFenetre);
+			redimensionneZones(&zQuit,&zHome,&zRetour,&zTitre,retour,home,croix);
 			redimmensionneGraph(&zGraph);
 			rafraichisFenetre();
 			

@@ -8,7 +8,7 @@ TARGET = learning_graph
 $(TARGET): reconnaissance_chiffres.o graphic.o IHM.o fonctions.o fonctionsTraitementImage.o libisentlib.a
 	$(CC) -o $@ $(FLAGS) $^ $(LDFLAGS)
 
-reconnaissance_chiffres.o: reconnaissance_chiffres.c BmpLib.h NNdefinitions.h fonctions.h fonctionsTraitementImage.h graphic.h
+reconnaissance_chiffres.o: reconnaissance_chiffres.c GfxLib.h BmpLib.h NNdefinitions.h fonctions.h fonctionsTraitementImage.h graphic.h
 	$(CC) $(CFLAGS) $<
 
 graphic.o: graphic.c GfxLib.h BmpLib.h ESLib.h graphic.h graphicdefinitions.h IHM.h fonctionsTraitementImage.h NNdefinitions.h fonctions.h

@@ -75,24 +75,24 @@ void afficheImage(zone zITest, DonneesImageRGB *image)
 
 //Fonctions de la page principal de l'interface
 
-void initZones(zone *zQuit, zone *zHome, zone *zRetour, zone *zTitre, DonneesImageRGB *retour, DonneesImageRGB *home, DonneesImageRGB *croix, int LargeurFenetre, int HauteurFenetre, char *titre)
+void initZones(zone *zQuit, zone *zHome, zone *zRetour, zone *zTitre, DonneesImageRGB *retour, DonneesImageRGB *home, DonneesImageRGB *croix, char *titre)
 {
 			// initialisation de la zone zQuit			
-			zQuit->xmax = LargeurFenetre - 4 ; 
+			zQuit->xmax = largeurFenetre() - 4 ; 
 			zQuit->xmin = zQuit->xmax - croix->largeurImage;
-			zQuit->ymax = HauteurFenetre - 2 ;
+			zQuit->ymax = hauteurFenetre() - 2 ;
 			zQuit->ymin = zQuit->ymax - croix->hauteurImage ; 
 
 			//initialisation du bouton accueil
 			zHome->xmax = zQuit->xmin-4;  //on part du bouton quitter pour placer le bouton home juste à côté
 			zHome->xmin = zHome->xmax - home->largeurImage ;
-			zHome->ymax = HauteurFenetre-2;
+			zHome->ymax = hauteurFenetre()-2;
 			zHome->ymin = zHome->ymax - home->hauteurImage ;
 
 			//initialisation du bouton retour
 			zRetour->xmax = zHome->xmin-4;//on part du bouton home pour placer le bouton retour juste à côté
 			zRetour->xmin = zRetour->xmax - retour->largeurImage ;
-			zRetour->ymax = HauteurFenetre-2 ;
+			zRetour->ymax = hauteurFenetre()-2 ;
 			zRetour->ymin = zRetour->ymax - retour->hauteurImage;
 
 			//initialisation de la zone Titre		
@@ -100,32 +100,32 @@ void initZones(zone *zQuit, zone *zHome, zone *zRetour, zone *zTitre, DonneesIma
 			zTitre->hauteur = 60; //pareil mais pour la hauteur
 			zTitre->espaceHaut = 10;
 			zTitre->espaceBas = 100;
-			zTitre->xmin = (LargeurFenetre - zTitre->longueur)/2; //cette formule sert à créer une zone centrée horizontalement
+			zTitre->xmin = (largeurFenetre() - zTitre->longueur)/2; //cette formule sert à créer une zone centrée horizontalement
 			zTitre->xmax = zTitre->xmin + zTitre->longueur;
-			zTitre->ymax = HauteurFenetre - zTitre->espaceHaut;
+			zTitre->ymax = hauteurFenetre() - zTitre->espaceHaut;
 			zTitre->ymin = zTitre->ymax - zTitre->hauteur ;
 			strcpy(zTitre->texte, titre);
 
 }
 
-void redimensionneZones(zone *zQuit, zone *zHome, zone *zRetour, zone *zTitre, DonneesImageRGB *retour, DonneesImageRGB *home, DonneesImageRGB *croix, int LargeurFenetre, int HauteurFenetre)
+void redimensionneZones(zone *zQuit, zone *zHome, zone *zRetour, zone *zTitre, DonneesImageRGB *retour, DonneesImageRGB *home, DonneesImageRGB *croix)
 {
 			// initialisation de la zone zQuit			
-			zQuit->xmax = LargeurFenetre - 4 ; 
+			zQuit->xmax = largeurFenetre() - 4 ; 
 			zQuit->xmin = zQuit->xmax - croix->largeurImage;
-			zQuit->ymax = HauteurFenetre - 2 ;
+			zQuit->ymax = hauteurFenetre() - 2 ;
 			zQuit->ymin = zQuit->ymax - croix->hauteurImage ; 
 
 			//initialisation du bouton accueil
 			zHome->xmax = zQuit->xmin-4;  //on part du bouton quitter pour placer le bouton home juste à côté
 			zHome->xmin = zHome->xmax - home->largeurImage ;
-			zHome->ymax = HauteurFenetre-2;
+			zHome->ymax = hauteurFenetre() - 2;
 			zHome->ymin = zHome->ymax - home->hauteurImage ;
 
 			//initialisation du bouton retour
 			zRetour->xmax = zHome->xmin-4;//on part du bouton home pour placer le bouton retour juste à côté
 			zRetour->xmin = zRetour->xmax - retour->largeurImage ;
-			zRetour->ymax = HauteurFenetre-2 ;
+			zRetour->ymax = hauteurFenetre() - 2 ;
 			zRetour->ymin = zRetour->ymax - retour->hauteurImage;
 
 			//initialisation de la zone Titre		
@@ -133,9 +133,9 @@ void redimensionneZones(zone *zQuit, zone *zHome, zone *zRetour, zone *zTitre, D
 			zTitre->hauteur = 60; //pareil mais pour la hauteur
 			zTitre->espaceHaut = 10;
 			zTitre->espaceBas = 100;
-			zTitre->xmin = (LargeurFenetre - zTitre->longueur)/2; //cette formule sert à créer une zone centrée horizontalement
+			zTitre->xmin = (largeurFenetre() - zTitre->longueur)/2; //cette formule sert à créer une zone centrée horizontalement
 			zTitre->xmax = zTitre->xmin + zTitre->longueur;
-			zTitre->ymax = HauteurFenetre - zTitre->espaceHaut;
+			zTitre->ymax = hauteurFenetre() - zTitre->espaceHaut;
 			zTitre->ymin = zTitre->ymax - zTitre->hauteur ;
 
 }
@@ -167,15 +167,15 @@ void redimmensionneGraph(zone *zGraph)
 	zGraph->ymax = zGraph->ymin + zGraph->hauteur;
 }
 
-void afficheAxesGraph(zone zGraph)
+void afficheAxesGraph(zone zGraph )
 {
 	// affchage des axes
 	couleurCourante(0,0,0);
 	ligne(zGraph.xmin, zGraph.ymin, zGraph.xmax, zGraph.ymin); // axe abscisse
 	ligne(zGraph.xmin, zGraph.ymin, zGraph.xmin, zGraph.ymax); // axe ordonnee
 
-	int intervalle_x = (zGraph.longueur * INTERVALLE_X) / MAX_X; // intervalles de l'ihm reels
-	int intervalle_y = (zGraph.hauteur * INTERVALLE_Y) / MAX_Y;
+  	int intervalle_x = (zGraph.longueur * INTERVALLE_X) / MAX_X; // intervalles de l'ihm reels
+	int intervalle_y = (zGraph.hauteur * INTERVALLE_Y) / MAX_Y;  
 
 	int intervalle_x_display = 0; //intervalles mis à l'échelle
 	int intervalle_y_display = 0;
@@ -210,13 +210,15 @@ void affichePointFonction(zone zGraph)
 	}
 }
 
-void affichePointDansGraph(int nb_boucle, int erreurs_modeles, zone zGraph)
+void affichePointDansGraph(int nb_boucle, int erreurs_modeles, zone zGraph )
 {
 	//printf("nb boucle = %d, erreurs = %d\n", nb_boucle,erreurs_modeles);
 	float x =  (zGraph.longueur * nb_boucle) / MAX_X; // placer une iteration sur le graph
+	float y =  (zGraph.hauteur * erreurs_modeles) / MAX_Y; // placer un point sur l'ordonnee
+	//printf("hauteur graph = %d, y point = %d\n", zGraph.hauteur ,(int)round(y));
 
 	if(erreurs_modeles < zGraph.ymax)
-		point(round(x) + zGraph.xmin, erreurs_modeles + zGraph.ymin);
+		point((int)round(x) + zGraph.xmin, (int)round(y) + zGraph.ymin);
 }
 
 void afficheTousLesPoints(int *erreurs, int nb_boucles, zone zGraph)
@@ -228,5 +230,4 @@ void afficheTousLesPoints(int *erreurs, int nb_boucles, zone zGraph)
 	{
 		affichePointDansGraph(num_boucle, erreurs[num_boucle], zGraph);
 	}
-	
 }
