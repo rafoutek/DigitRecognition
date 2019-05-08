@@ -57,7 +57,7 @@ void remplit_imageModele(DonneesImageRGB *img, int chiffre, int num, char *chemi
 
 DonneesImageRGB *lis_imageModele( int chiffre, int num, char *chemin_image)
 {
-	sprintf(chemin_image, "./img_learn_bmp/%d.%d.bmp", chiffre,num);
+	sprintf(chemin_image, "../img_learn_bmp/%d.%d.bmp", chiffre,num);
 	DonneesImageRGB *img =  lisBMPRGB(chemin_image);
 	if(img == NULL)
 	{
@@ -158,7 +158,7 @@ RESEAU init_reseau(MODELE modele)
 	//initialisation du reseau
 		//couche cachee
 	reseau.couches[0].numero_couche = 0;
-	reseau.couches[0].nb_perceptrons = 21;
+	reseau.couches[0].nb_perceptrons = 60;
 		//couche sortie avec 10 perceptrons/sorties
 	reseau.couches[1].numero_couche = 1;
 	reseau.couches[reseau.nb_couches-1].nb_perceptrons = modele.nb_sorties; 
@@ -405,7 +405,7 @@ char* demande_utilisateur_image_a_test(void)
 	printf("Entrez le nom de l'image(sans l'extension): ");
 	scanf("%s", nom);
 	getchar();
-	sprintf(cheminImageTest, "./img_learn_bmp/%s.bmp",nom);
+	sprintf(cheminImageTest, "../img_learn_bmp/%s.bmp",nom);
 	printf("Chemin de l'image à tester: %s\n", cheminImageTest);
 
 	return cheminImageTest;
